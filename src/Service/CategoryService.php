@@ -29,11 +29,13 @@ class CategoryService
 
     public function getOne($adminUserId, $categoryId)
     {
+        $companyId = $this->getCompanyFromAdminUser($adminUserId);
+        
         $query = "
             SELECT *
             FROM category c
             WHERE c.active = 1
-            AND c.company_id = {$this->getCompanyFromAdminUser($adminUserId)}
+            AND (c.company_id = {$companyId} OR c.company_id IS NULL)
             AND c.id = {$categoryId}
         ";
 

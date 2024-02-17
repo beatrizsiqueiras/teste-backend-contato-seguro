@@ -29,13 +29,16 @@ class ProductController
     }
 
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
-    {
+    { 
         $stm = $this->service->getOne($args['id']);
+
         $product = Product::hydrateByFetch($stm->fetch());
 
         $adminUserId = $request->getHeader('admin_user_id')[0];
+
         $productCategory = $this->categoryService->getProductCategory($product->id)->fetch();
         $fetchedCategory = $this->categoryService->getOne($adminUserId, $productCategory->id)->fetch();
+
         $product->setCategory($fetchedCategory->title);
 
         $response->getBody()->write(json_encode($product));

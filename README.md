@@ -45,7 +45,7 @@ Abaixo, as solicitações do cliente:
 ### Categorias
 - [X] A categoria está vindo errada na listagem de produtos para alguns casos
   (_exemplo: produto `blue trouser` está vindo na categoria `phone` e deveria ser `clothing`_);
-- [ ] Alguns produtos estão vindo com a categoria `null` ao serem pesquisados individualmente (_exemplo: produto `iphone 8`_);
+- [X] Alguns produtos estão vindo com a categoria `null` ao serem pesquisados individualmente (_exemplo: produto `iphone 8`_);
 - [ ] Cadastrei o produto `king size bed` em mais de uma categoria, mas ele aparece **apenas** na categoria `furniture` na busca individual do produto.
 
 ### Filtros e Ordenamento
@@ -68,7 +68,7 @@ Para a listagem de produtos:
 - [ ] Gostaria de saber qual usuário mudou o preço do produto `iphone 8` por último.
 
 ### Extra
-- [ ] Aqui fica um desafio extra **opcional**: _criar um ambiente com_ Docker _para a api_.
+- [X] Aqui fica um desafio extra **opcional**: _criar um ambiente com_ Docker _para a api_.
 
 **Seu trabalho é atender às 7 demandas solicitadas pelo cliente.**
 
