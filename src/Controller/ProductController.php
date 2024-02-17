@@ -5,6 +5,7 @@ namespace Contatoseguro\TesteBackend\Controller;
 use Contatoseguro\TesteBackend\Model\Product;
 use Contatoseguro\TesteBackend\Service\CategoryService;
 use Contatoseguro\TesteBackend\Service\ProductService;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -41,7 +42,7 @@ class ProductController
         $productCategoryTitles = $this->categoryService->getAllProductCategoryTitles($adminUserId, $productCategory);
 
         $product->setCategory($productCategoryTitles);
-        
+
         $response->getBody()->write(json_encode($product));
         return $response->withStatus(200);
     }
@@ -79,5 +80,27 @@ class ProductController
         } else {
             return $response->withStatus(404);
         }
+    }
+
+    public function getActiveProduct(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $adminUserId = $request->getHeader('admin_user_id')[0];
+
+        $activeProducts = $this->service->getAllActiveProducts($adminUserId);
+
+        $response->getBody()->write(json_encode($activeProducts->fetchAll()));
+        
+        return $response->withStatus(200);
+    }
+
+    public function getInactiveProduct(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $adminUserId = $request->getHeader('admin_user_id')[0];
+
+        $inactiveProducts = $this->service->getAllInactiveProducts($adminUserId);
+
+        $response->getBody()->write(json_encode($inactiveProducts->fetchAll()));
+
+        return $response->withStatus(200);
     }
 }

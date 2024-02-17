@@ -164,4 +164,40 @@ class ProductService
 
         return $stm;
     }
+
+    public function getAllActiveProducts($adminUserId)
+    {
+        $query = "
+            SELECT p.*, c.title as category
+                FROM product p
+            INNER JOIN product_category pc ON pc.product_id = p.id
+            INNER JOIN category c ON c.id = pc.cat_id
+            WHERE p.company_id = {$adminUserId}
+            AND p.active = 1
+        ";
+
+        $stm = $this->pdo->prepare($query);
+
+        $stm->execute();
+
+        return $stm;
+    }
+
+    public function getAllInactiveProducts($adminUserId)
+    {
+        $query = "
+            SELECT p.*, c.title as category
+                FROM product p
+            INNER JOIN product_category pc ON pc.product_id = p.id
+            INNER JOIN category c ON c.id = pc.cat_id
+            WHERE p.company_id = {$adminUserId}
+            AND p.active = 0
+        ";
+
+        $stm = $this->pdo->prepare($query);
+
+        $stm->execute();
+
+        return $stm;
+    }
 }
