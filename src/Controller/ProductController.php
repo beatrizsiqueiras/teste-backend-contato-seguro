@@ -22,25 +22,26 @@ class ProductController
     public function getAll(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $adminUserId = $request->getHeader('admin_user_id')[0];
-        
+
         $stm = $this->service->getAll($adminUserId);
         $response->getBody()->write(json_encode($stm->fetchAll()));
         return $response->withStatus(200);
     }
 
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
-    { 
+    {
         $stm = $this->service->getOne($args['id']);
 
         $product = Product::hydrateByFetch($stm->fetch());
 
         $adminUserId = $request->getHeader('admin_user_id')[0];
 
-        $productCategory = $this->categoryService->getProductCategory($product->id)->fetch();
-        $fetchedCategory = $this->categoryService->getOne($adminUserId, $productCategory->id)->fetch();
+        $productCategory = $this->categoryService->getProductCategory($product->id)->fetchAll();
 
-        $product->setCategory($fetchedCategory->title);
+        $productCategoryTitles = $this->categoryService->getAllProductCategoryTitles($adminUserId, $productCategory);
 
+        $product->setCategory($productCategoryTitles);
+        
         $response->getBody()->write(json_encode($product));
         return $response->withStatus(200);
     }

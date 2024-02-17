@@ -3,6 +3,7 @@
 namespace Contatoseguro\TesteBackend\Service;
 
 use Contatoseguro\TesteBackend\Config\DB;
+use Exception;
 
 class CategoryService
 {
@@ -30,7 +31,7 @@ class CategoryService
     public function getOne($adminUserId, $categoryId)
     {
         $companyId = $this->getCompanyFromAdminUser($adminUserId);
-        
+
         $query = "
             SELECT *
             FROM category c
@@ -116,9 +117,26 @@ class CategoryService
         ";
 
         $stm = $this->pdo->prepare($query);
-        
+
         $stm->execute();
 
         return $stm->fetch()->company_id;
+    }
+
+    public function getAllProductCategoryTitles(int $adminUserId, array $categoryIds)
+    {
+        if (empty($categoryIds)) {
+            throw new Exception("Empty array");
+        }
+
+        $categoryTitles = array();
+
+        foreach ($categoryIds as $category) {
+            $fetchedCategory = $this->getOne($adminUserId, $category->id)->fetch();
+
+            $categoryTitles[] = $fetchedCategory->title;
+        }
+
+        return $categoryTitles;
     }
 }

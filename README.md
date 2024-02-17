@@ -46,7 +46,7 @@ Abaixo, as solicitações do cliente:
 - [X] A categoria está vindo errada na listagem de produtos para alguns casos
   (_exemplo: produto `blue trouser` está vindo na categoria `phone` e deveria ser `clothing`_);
 - [X] Alguns produtos estão vindo com a categoria `null` ao serem pesquisados individualmente (_exemplo: produto `iphone 8`_);
-- [ ] Cadastrei o produto `king size bed` em mais de uma categoria, mas ele aparece **apenas** na categoria `furniture` na busca individual do produto.
+- [X] Cadastrei o produto `king size bed` em mais de uma categoria, mas ele aparece **apenas** na categoria `furniture` na busca individual do produto.
 
 ### Filtros e Ordenamento
 Para a listagem de produtos:
