@@ -84,6 +84,9 @@ class ProductController
 
     public function getActiveProduct(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
+        // $queryParams = $request->getQueryParams();        
+        // $isActive = isset($queryParams['active']) ? (bool)$queryParams['active'] : null;
+        
         $adminUserId = $request->getHeader('admin_user_id')[0];
 
         $activeProducts = $this->service->getAllActiveProducts($adminUserId);
@@ -100,6 +103,19 @@ class ProductController
         $inactiveProducts = $this->service->getAllInactiveProducts($adminUserId);
 
         $response->getBody()->write(json_encode($inactiveProducts->fetchAll()));
+
+        return $response->withStatus(200);
+    }
+
+    public function getProductByCategory(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $categoryId = $args['categoryId'];
+
+        $adminUserId = $request->getHeader('admin_user_id')[0];
+
+        $productsByCategoryId = $this->service->getProductByCategoryId($adminUserId, $categoryId);
+
+        $response->getBody()->write(json_encode($productsByCategoryId->fetchAll()));
 
         return $response->withStatus(200);
     }

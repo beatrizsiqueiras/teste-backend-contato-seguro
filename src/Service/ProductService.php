@@ -200,4 +200,25 @@ class ProductService
 
         return $stm;
     }
+
+    public function getProductByCategoryId($adminUserId, $categoryId)
+    {
+        $query = "
+            SELECT p.*, c.title as category
+                FROM product p
+                    INNER JOIN product_category pc ON pc.product_id = p.id
+                    INNER JOIN category c ON c.id = pc.cat_id
+                WHERE p.company_id = {$adminUserId}
+                AND p.active = 1
+                AND c.id = {$categoryId}
+                AND c.active = 1
+                AND c.company_id = {$adminUserId}
+        ";
+
+        $stm = $this->pdo->prepare($query);
+
+        $stm->execute();
+
+        return $stm;
+    }
 }
