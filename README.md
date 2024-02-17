@@ -48,7 +48,7 @@ Abaixo, as solicitações do cliente:
 - [X] Alguns produtos estão vindo com a categoria `null` ao serem pesquisados individualmente (_exemplo: produto `iphone 8`_);
 - [X] Cadastrei o produto `king size bed` em mais de uma categoria, mas ele aparece **apenas** na categoria `furniture` na busca individual do produto.
 
-### Filtros e Ordenamento
+### Filtros e Ordenação
 Para a listagem de produtos:
 - [X] Gostaria de poder filtrar os produtos ativos e inativos;
 - [ ] Gostaria de poder filtrar os produtos por categoria;
