@@ -86,13 +86,13 @@ class ProductController
     {
         // $queryParams = $request->getQueryParams();        
         // $isActive = isset($queryParams['active']) ? (bool)$queryParams['active'] : null;
-        
+
         $adminUserId = $request->getHeader('admin_user_id')[0];
 
         $activeProducts = $this->service->getAllActiveProducts($adminUserId);
 
         $response->getBody()->write(json_encode($activeProducts->fetchAll()));
-        
+
         return $response->withStatus(200);
     }
 
@@ -116,6 +116,18 @@ class ProductController
         $productsByCategoryId = $this->service->getProductByCategoryId($adminUserId, $categoryId);
 
         $response->getBody()->write(json_encode($productsByCategoryId->fetchAll()));
+
+        return $response->withStatus(200);
+    }
+
+    public function getProductByCreatedDate(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $date = $args['date'];
+        $adminUserId = $request->getHeader('admin_user_id')[0];
+
+        $productsByCreatedDate = $this->service->getProductByCreatedDate($adminUserId, $date);
+
+        $response->getBody()->write(json_encode($productsByCreatedDate->fetchAll()));
 
         return $response->withStatus(200);
     }

@@ -221,4 +221,29 @@ class ProductService
 
         return $stm;
     }
+
+    public function getProductByCreatedDate($adminUserId, $date)
+    {
+        // fazer em outro lugar
+        $dateFormat = substr($date, 0, 4) . "-" . substr($date, 4, 2) . "-" . substr($date, 6, 2);
+        $date = date('Y-m-d', strtotime($dateFormat));
+        
+        $query = "
+        SELECT p.*, c.title as category
+        FROM product p
+        INNER JOIN product_category pc ON pc.product_id = p.id
+        INNER JOIN category c ON c.id = pc.cat_id
+        WHERE p.company_id = {$adminUserId}
+        AND p.active = 1
+        AND c.active = 1
+        AND c.company_id = {$adminUserId}
+        AND STRFTIME('%Y-%m-%d', p.created_at) = '$date'
+        ";
+
+        $stm = $this->pdo->prepare($query);
+
+        $stm->execute();
+
+        return $stm;
+    }
 }
