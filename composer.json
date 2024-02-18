@@ -5,6 +5,9 @@
         "slim/psr7": "^1.6"
     },
     "autoload": {
+        "files": [
+            "src/Helper/filters.php"
+        ],
         "psr-4": {
             "Contatoseguro\\TesteBackend\\": "src/"
         }

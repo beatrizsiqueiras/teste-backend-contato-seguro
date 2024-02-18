@@ -5,7 +5,6 @@ namespace Contatoseguro\TesteBackend\Controller;
 use Contatoseguro\TesteBackend\Model\Product;
 use Contatoseguro\TesteBackend\Service\CategoryService;
 use Contatoseguro\TesteBackend\Service\ProductService;
-use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -23,8 +22,10 @@ class ProductController
     public function getAll(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $adminUserId = $request->getHeader('admin_user_id')[0];
+        $queryParams = $request->getQueryParams();        
 
-        $stm = $this->service->getAll($adminUserId);
+        $stm = $this->service->getAll($adminUserId, $queryParams);
+        
         $response->getBody()->write(json_encode($stm->fetchAll()));
         return $response->withStatus(200);
     }
@@ -80,55 +81,5 @@ class ProductController
         } else {
             return $response->withStatus(404);
         }
-    }
-
-    public function getActiveProduct(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
-    {
-        // $queryParams = $request->getQueryParams();        
-        // $isActive = isset($queryParams['active']) ? (bool)$queryParams['active'] : null;
-
-        $adminUserId = $request->getHeader('admin_user_id')[0];
-
-        $activeProducts = $this->service->getAllActiveProducts($adminUserId);
-
-        $response->getBody()->write(json_encode($activeProducts->fetchAll()));
-
-        return $response->withStatus(200);
-    }
-
-    public function getInactiveProduct(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
-    {
-        $adminUserId = $request->getHeader('admin_user_id')[0];
-
-        $inactiveProducts = $this->service->getAllInactiveProducts($adminUserId);
-
-        $response->getBody()->write(json_encode($inactiveProducts->fetchAll()));
-
-        return $response->withStatus(200);
-    }
-
-    public function getProductByCategory(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
-    {
-        $categoryId = $args['categoryId'];
-
-        $adminUserId = $request->getHeader('admin_user_id')[0];
-
-        $productsByCategoryId = $this->service->getProductByCategoryId($adminUserId, $categoryId);
-
-        $response->getBody()->write(json_encode($productsByCategoryId->fetchAll()));
-
-        return $response->withStatus(200);
-    }
-
-    public function getProductByCreatedDate(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
-    {
-        $date = $args['date'];
-        $adminUserId = $request->getHeader('admin_user_id')[0];
-
-        $productsByCreatedDate = $this->service->getProductByCreatedDate($adminUserId, $date);
-
-        $response->getBody()->write(json_encode($productsByCreatedDate->fetchAll()));
-
-        return $response->withStatus(200);
     }
 }

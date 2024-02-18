@@ -3,6 +3,8 @@
 namespace Contatoseguro\TesteBackend\Service;
 
 use Contatoseguro\TesteBackend\Config\DB;
+use Contatoseguro\TesteBackend\Enum\FilterTypes;
+use Contatoseguro\TesteBackend\Model\AllowedFilter;
 
 class ProductService
 {
@@ -12,14 +14,20 @@ class ProductService
         $this->pdo = DB::connect();
     }
 
-    public function getAll($adminUserId)
+    public function getAll(string $adminUserId, array $queryParams)
     {
+        $filtersQuery = get_filters_query($queryParams, [
+            'createdAt' => new AllowedFilter('p.created_at', FilterTypes::Date),
+            'active' => new AllowedFilter('p.active')
+        ]);
+
         $query = "
             SELECT p.*, c.title as category
             FROM product p
             INNER JOIN product_category pc ON pc.product_id = p.id
             INNER JOIN category c ON c.id = pc.cat_id
             WHERE p.company_id = {$adminUserId}
+            $filtersQuery
         ";
 
         $stm = $this->pdo->prepare($query);
@@ -160,88 +168,6 @@ class ProductService
             FROM product_log
             WHERE product_id = {$id}
         ");
-        $stm->execute();
-
-        return $stm;
-    }
-
-    public function getAllActiveProducts($adminUserId)
-    {
-        $query = "
-            SELECT p.*, c.title as category
-                FROM product p
-            INNER JOIN product_category pc ON pc.product_id = p.id
-            INNER JOIN category c ON c.id = pc.cat_id
-            WHERE p.company_id = {$adminUserId}
-            AND p.active = 1
-        ";
-
-        $stm = $this->pdo->prepare($query);
-
-        $stm->execute();
-
-        return $stm;
-    }
-
-    public function getAllInactiveProducts($adminUserId)
-    {
-        $query = "
-            SELECT p.*, c.title as category
-                FROM product p
-            INNER JOIN product_category pc ON pc.product_id = p.id
-            INNER JOIN category c ON c.id = pc.cat_id
-            WHERE p.company_id = {$adminUserId}
-            AND p.active = 0
-        ";
-
-        $stm = $this->pdo->prepare($query);
-
-        $stm->execute();
-
-        return $stm;
-    }
-
-    public function getProductByCategoryId($adminUserId, $categoryId)
-    {
-        $query = "
-            SELECT p.*, c.title as category
-                FROM product p
-                    INNER JOIN product_category pc ON pc.product_id = p.id
-                    INNER JOIN category c ON c.id = pc.cat_id
-                WHERE p.company_id = {$adminUserId}
-                AND p.active = 1
-                AND c.id = {$categoryId}
-                AND c.active = 1
-                AND c.company_id = {$adminUserId}
-        ";
-
-        $stm = $this->pdo->prepare($query);
-
-        $stm->execute();
-
-        return $stm;
-    }
-
-    public function getProductByCreatedDate($adminUserId, $date)
-    {
-        // fazer em outro lugar
-        $dateFormat = substr($date, 0, 4) . "-" . substr($date, 4, 2) . "-" . substr($date, 6, 2);
-        $date = date('Y-m-d', strtotime($dateFormat));
-        
-        $query = "
-        SELECT p.*, c.title as category
-        FROM product p
-        INNER JOIN product_category pc ON pc.product_id = p.id
-        INNER JOIN category c ON c.id = pc.cat_id
-        WHERE p.company_id = {$adminUserId}
-        AND p.active = 1
-        AND c.active = 1
-        AND c.company_id = {$adminUserId}
-        AND STRFTIME('%Y-%m-%d', p.created_at) = '$date'
-        ";
-
-        $stm = $this->pdo->prepare($query);
-
         $stm->execute();
 
         return $stm;

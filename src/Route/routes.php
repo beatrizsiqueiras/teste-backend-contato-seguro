@@ -17,10 +17,6 @@ $app->group('/companies', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/products', function (RouteCollectorProxy $group) {
-    $group->get('/active', [ProductController::class, 'getActiveProduct']);
-    $group->get('/inactive', [ProductController::class, 'getInactiveProduct']);
-    $group->get('/category/{categoryId}', [ProductController::class, 'getProductByCategory']);
-    $group->get('/createdAt/{date}', [ProductController::class, 'getProductByCreatedDate']);
     $group->get('', [ProductController::class, 'getAll']);
     $group->get('/{id}', [ProductController::class, 'getOne']);
     $group->post('', [ProductController::class, 'insertOne']);
