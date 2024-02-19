@@ -5,6 +5,7 @@ use Contatoseguro\TesteBackend\Controller\CategoryController;
 use Contatoseguro\TesteBackend\Controller\CompanyController;
 use Contatoseguro\TesteBackend\Controller\HomeController;
 use Contatoseguro\TesteBackend\Controller\ProductController;
+use Contatoseguro\TesteBackend\Controller\ProductLogController;
 use Contatoseguro\TesteBackend\Controller\ReportController;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
@@ -39,6 +40,11 @@ $app->group('/adminUsers', function (RouteCollectorProxy $group) {
     $group->post('', [AdminUserController::class, 'insertOne']);
     $group->put('/{id}', [AdminUserController::class, 'updateOne']);
     $group->delete('/{id}', [AdminUserController::class, 'deleteOne']);
+});
+
+$app->group('/productLogs', function (RouteCollectorProxy $group) {
+    $group->get('', [ProductLogController::class, 'getAll']);
+    $group->get('/{id}', [ProductLogController::class, 'getLogsByProductId']);
 });
 
 $app->get('/report', [ReportController::class, 'generate']);

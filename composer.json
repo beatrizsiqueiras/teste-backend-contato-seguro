@@ -6,7 +6,8 @@
     },
     "autoload": {
         "files": [
-            "src/Helper/filters.php"
+            "src/Helper/filters.php",
+            "src/Helper/logActions.php"
         ],
         "psr-4": {
             "Contatoseguro\\TesteBackend\\": "src/"

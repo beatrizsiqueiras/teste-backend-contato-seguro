@@ -26,7 +26,7 @@ class ProductLogService
     }
 
 
-    public function getLogByProductId($id)
+    public function getLogsByProductId($id)
     {
         $stm = $this->pdo->prepare("
             SELECT *
