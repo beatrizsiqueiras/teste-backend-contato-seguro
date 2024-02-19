@@ -12,14 +12,15 @@ function get_filters_query(array $queryParams, $allowedFilters = [])
 
         switch ($filter->type) {
             case FilterTypes::Date:
-                $filtersQuery .= "AND STRFTIME('%Y-%m-%d', $filter->columnName) = '$value'";
+                $date = DateTime::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+
+                $filtersQuery .= "AND STRFTIME('%Y-%m-%d', $filter->columnName) = '$date'";
                 break;
-            
+
             default:
                 $filtersQuery .= "AND $filter->columnName = $value ";
                 break;
         }
-
     }
 
     return $filtersQuery;

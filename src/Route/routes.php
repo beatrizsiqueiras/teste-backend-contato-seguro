@@ -1,5 +1,6 @@
 <?php
 
+use Contatoseguro\TesteBackend\Controller\AdminUserController;
 use Contatoseguro\TesteBackend\Controller\CategoryController;
 use Contatoseguro\TesteBackend\Controller\CompanyController;
 use Contatoseguro\TesteBackend\Controller\HomeController;
@@ -30,6 +31,14 @@ $app->group('/categories', function (RouteCollectorProxy $group) {
     $group->post('', [CategoryController::class, 'insertOne']);
     $group->put('/{id}', [CategoryController::class, 'updateOne']);
     $group->delete('/{id}', [CategoryController::class, 'deleteOne']);
+});
+
+$app->group('/adminUsers', function (RouteCollectorProxy $group) {
+    $group->get('', [AdminUserController::class, 'getAll']);
+    $group->get('/{id}', [AdminUserController::class, 'getOne']);
+    $group->post('', [AdminUserController::class, 'insertOne']);
+    $group->put('/{id}', [AdminUserController::class, 'updateOne']);
+    $group->delete('/{id}', [AdminUserController::class, 'deleteOne']);
 });
 
 $app->get('/report', [ReportController::class, 'generate']);

@@ -14,7 +14,7 @@ class ProductService
         $this->pdo = DB::connect();
     }
 
-    public function getAll(string $adminUserId, array $queryParams)
+    public function getAll(string $adminUserId, array $queryParams = [])
     {
         $filtersQuery = get_filters_query($queryParams, [
             'createdAt' => new AllowedFilter('p.created_at', FilterTypes::Date),
