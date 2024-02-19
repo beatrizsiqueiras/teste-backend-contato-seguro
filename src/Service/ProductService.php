@@ -4,14 +4,20 @@ namespace Contatoseguro\TesteBackend\Service;
 
 use Contatoseguro\TesteBackend\Config\DB;
 use Contatoseguro\TesteBackend\Enum\FilterTypes;
+use Contatoseguro\TesteBackend\Enum\LogActions;
 use Contatoseguro\TesteBackend\Model\AllowedFilter;
 
 class ProductService
 {
     private \PDO $pdo;
+    private ProductLogService $productLogService;
+    private ProductCategoryService $productCategoryService;
+
     public function __construct()
     {
         $this->pdo = DB::connect();
+        $this->productLogService = new ProductLogService();
+        $this->productCategoryService = new ProductCategoryService();
     }
 
     public function getAll(string $adminUserId, array $queryParams = [])
@@ -59,43 +65,18 @@ class ProductService
                 price,
                 active
             ) VALUES (
-                {$body['company_id']},
-                '{$body['title']}',
-                {$body['price']},
-                {$body['active']}
+                $body[company_id],
+                '$body[title]',
+                $body[price],
+                $body[active]
             )
         ");
-        if (!$stm->execute()) {
-            return false;
-        }
+        $stm->execute();
 
         $productId = $this->pdo->lastInsertId();
 
-        $stm = $this->pdo->prepare("
-            INSERT INTO product_category (
-                product_id,
-                cat_id
-            ) VALUES (
-                {$productId},
-                {$body['category_id']}
-            );
-        ");
-        if (!$stm->execute())
-            return false;
-
-        $stm = $this->pdo->prepare("
-            INSERT INTO product_log (
-                product_id,
-                admin_user_id,
-                `action`
-            ) VALUES (
-                {$productId},
-                {$adminUserId},
-                'create'
-            )
-        ");
-
-        return $stm->execute();
+        $this->productCategoryService->insertOne($productId, $body['category_id']);
+        $this->productLogService->insertOne($productId, $adminUserId, LogActions::Create);
     }
 
     public function updateOne($id, $body, $adminUserId)
@@ -111,65 +92,20 @@ class ProductService
         if (!$stm->execute())
             return false;
 
-        $stm = $this->pdo->prepare("
-            UPDATE product_category
-            SET cat_id = {$body['category_id']}
-            WHERE product_id = {$id}
-        ");
-        if (!$stm->execute())
-            return false;
-
-        $stm = $this->pdo->prepare("
-            INSERT INTO product_log (
-                product_id,
-                admin_user_id,
-                `action`
-            ) VALUES (
-                {$id},
-                {$adminUserId},
-                'update'
-            )
-        ");
-
-        return $stm->execute();
+        $this->productCategoryService->updateOne($id, $body['category_id']);
+        $this->productLogService->insertOne($id, $adminUserId, LogActions::Update);
     }
 
     public function deleteOne($id, $adminUserId)
     {
-        $stm = $this->pdo->prepare("
-            DELETE FROM product_category WHERE product_id = {$id}
-        ");
-        if (!$stm->execute())
-            return false;
+        $this->productCategoryService->deleteOne($id);
 
         $stm = $this->pdo->prepare("DELETE FROM product WHERE id = {$id}");
-        if (!$stm->execute())
+
+        if (!$stm->execute()) {
             return false;
+        }
 
-        $stm = $this->pdo->prepare("
-            INSERT INTO product_log (
-                product_id,
-                admin_user_id,
-                `action`
-            ) VALUES (
-                {$id},
-                {$adminUserId},
-                'delete'
-            )
-        ");
-
-        return $stm->execute();
-    }
-
-    public function getLog($id)
-    {
-        $stm = $this->pdo->prepare("
-            SELECT *
-            FROM product_log
-            WHERE product_id = {$id}
-        ");
-        $stm->execute();
-
-        return $stm;
+        $this->productLogService->insertOne($id, $adminUserId, LogActions::Delete);
     }
 }

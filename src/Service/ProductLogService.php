@@ -3,6 +3,7 @@
 namespace Contatoseguro\TesteBackend\Service;
 
 use Contatoseguro\TesteBackend\Config\DB;
+use Contatoseguro\TesteBackend\Enum\LogActions;
 
 class ProductLogService
 {
@@ -40,4 +41,20 @@ class ProductLogService
     }
 
 
+    public function insertOne($productId, $adminUserId, LogActions $action)
+    {
+        $actionValue = $action->value;
+        $query = "INSERT INTO product_log (
+            product_id,
+            admin_user_id,
+            action
+        ) VALUES (
+            {$productId},
+            {$adminUserId},
+            '{$actionValue}'
+        )";
+        $stm = $this->pdo->prepare($query);
+
+        return $stm->execute();
+    }
 }

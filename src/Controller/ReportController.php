@@ -3,7 +3,6 @@
 namespace Contatoseguro\TesteBackend\Controller;
 
 use Contatoseguro\TesteBackend\Service\CompanyService;
-use Contatoseguro\TesteBackend\Service\ProductLogService;
 use Contatoseguro\TesteBackend\Service\ProductService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -11,13 +10,11 @@ use Psr\Http\Message\ServerRequestInterface;
 class ReportController
 {
     private ProductService $productService;
-    private ProductLogService $productLogService;
     private CompanyService $companyService;
 
     public function __construct()
     {
         $this->productService = new ProductService();
-        $this->productLogService = new ProductLogService();
         $this->companyService = new CompanyService();
     }
 
@@ -44,7 +41,7 @@ class ReportController
             $companyName = $stm->fetch()->name;
 
             $productLogs = (new ProductLogController)->generateProductLogsString($product->id);
-            
+
             $data[$i + 1][] = $product->id;
             $data[$i + 1][] = $companyName;
             $data[$i + 1][] = $product->title;
