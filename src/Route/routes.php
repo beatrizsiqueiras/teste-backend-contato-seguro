@@ -4,6 +4,7 @@ use Contatoseguro\TesteBackend\Controller\AdminUserController;
 use Contatoseguro\TesteBackend\Controller\CategoryController;
 use Contatoseguro\TesteBackend\Controller\CompanyController;
 use Contatoseguro\TesteBackend\Controller\HomeController;
+use Contatoseguro\TesteBackend\Controller\ProductCategoryController;
 use Contatoseguro\TesteBackend\Controller\ProductController;
 use Contatoseguro\TesteBackend\Controller\ProductLogController;
 use Contatoseguro\TesteBackend\Controller\ReportController;
@@ -45,6 +46,11 @@ $app->group('/adminUsers', function (RouteCollectorProxy $group) {
 $app->group('/productLogs', function (RouteCollectorProxy $group) {
     $group->get('', [ProductLogController::class, 'getAll']);
     $group->get('/{id}', [ProductLogController::class, 'getLogsByProductId']);
+});
+
+$app->group('/productCategory', function (RouteCollectorProxy $group) {
+    $group->get('', [ProductCategoryController::class, 'getAll']);
+    $group->get('/{id}', [ProductCategoryController::class, 'getProductCategoryById']);
 });
 
 $app->get('/report', [ReportController::class, 'generate']);

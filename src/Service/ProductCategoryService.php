@@ -12,11 +12,13 @@ class ProductCategoryService
         $this->pdo = DB::connect();
     }
 
-    public function getAll()
+    public function getAll($company_id)
     {
         $query = "
-            SELECT *
-            FROM product_category
+            SELECT pc.*
+            FROM product_category pc
+            INNER JOIN product p ON p.id = pc.product_id
+            AND p.company_id = {$company_id}
         ";
 
         $stm = $this->pdo->prepare($query);
@@ -25,12 +27,14 @@ class ProductCategoryService
         return $stm;
     }
 
-    public function getProductCategoryByProductId($id)
+    public function getProductCategoryById($id, $company_id)
     {
         $stm = $this->pdo->prepare("
-            SELECT *
-            FROM product_category
+            SELECT pc.*
+            FROM product_category pc
+            INNER JOIN product p ON p.id = pc.product_id
             WHERE product_id = {$id}
+            AND p.company_id = {$company_id}
         ");
 
         $stm->execute();
