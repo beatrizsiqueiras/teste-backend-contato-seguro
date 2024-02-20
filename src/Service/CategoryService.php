@@ -8,21 +8,25 @@ use Exception;
 class CategoryService
 {
     private \PDO $pdo;
+    private AdminUserService $adminUserService;
+
     public function __construct()
     {
         $this->pdo = DB::connect();
+        $this->adminUserService = new AdminUserService();
     }
 
     public function getAll($adminUserId)
     {
+        $companyId = $this->adminUserService->getCompanyFromAdminUser($adminUserId);
+        
         $query = "
             SELECT *
-            FROM category c
-            WHERE c.company_id = {$this->getCompanyFromAdminUser($adminUserId)}
+            FROM category 
+            WHERE company_id = $companyId OR company_id IS NULL;
         ";
 
         $stm = $this->pdo->prepare($query);
-
         $stm->execute();
 
         return $stm;
@@ -30,7 +34,7 @@ class CategoryService
 
     public function getOne($adminUserId, $categoryId)
     {
-        $companyId = $this->getCompanyFromAdminUser($adminUserId);
+        $companyId = $this->adminUserService->getCompanyFromAdminUser($adminUserId);
 
         $query = "
             SELECT *
@@ -41,7 +45,6 @@ class CategoryService
         ";
 
         $stm = $this->pdo->prepare($query);
-
         $stm->execute();
 
         return $stm;
@@ -58,7 +61,6 @@ class CategoryService
         ";
 
         $stm = $this->pdo->prepare($query);
-
         $stm->execute();
 
         return $stm;
@@ -66,13 +68,15 @@ class CategoryService
 
     public function insertOne($body, $adminUserId)
     {
+        $companyId = $this->adminUserService->getCompanyFromAdminUser($adminUserId);
+
         $stm = $this->pdo->prepare("
             INSERT INTO category (
                 company_id,
                 title,
                 active
             ) VALUES (
-                {$this->getCompanyFromAdminUser($adminUserId)},
+                {$companyId},
                 '{$body['title']}',
                 {$body['active']}
             )
@@ -84,13 +88,14 @@ class CategoryService
     public function updateOne($id, $body, $adminUserId)
     {
         $active = (int)$body['active'];
+        $companyId = $this->adminUserService->getCompanyFromAdminUser($adminUserId);
 
         $stm = $this->pdo->prepare("
             UPDATE category
             SET title = '{$body['title']}',
                 active = {$active}
             WHERE id = {$id}
-            AND company_id = {$this->getCompanyFromAdminUser($adminUserId)}
+            AND company_id = {$companyId}
         ");
 
         return $stm->execute();
@@ -98,29 +103,16 @@ class CategoryService
 
     public function deleteOne($id, $adminUserId)
     {
+        $companyId = $this->adminUserService->getCompanyFromAdminUser($adminUserId);
+
         $stm = $this->pdo->prepare("
             DELETE
             FROM category
             WHERE id = {$id}
-            AND company_id = {$this->getCompanyFromAdminUser($adminUserId)}
+            AND company_id = {$companyId}
         ");
 
         return $stm->execute();
-    }
-
-    private function getCompanyFromAdminUser($adminUserId)
-    {
-        $query = "
-            SELECT company_id
-            FROM admin_user
-            WHERE id = {$adminUserId}
-        ";
-
-        $stm = $this->pdo->prepare($query);
-
-        $stm->execute();
-
-        return $stm->fetch()->company_id;
     }
 
     public function getAllProductCategoryTitles(int $adminUserId, array $categoryIds)

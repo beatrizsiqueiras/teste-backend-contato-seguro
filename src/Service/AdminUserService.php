@@ -3,6 +3,7 @@
 namespace Contatoseguro\TesteBackend\Service;
 
 use Contatoseguro\TesteBackend\Config\DB;
+use Exception;
 
 class AdminUserService
 {
@@ -76,5 +77,19 @@ class AdminUserService
             DELETE FROM admin_user WHERE id = {$id}
         ");
         return $stm->execute();
+    }
+
+    public function getCompanyFromAdminUser($adminUserId)
+    {
+        $query = "
+            SELECT company_id
+            FROM admin_user
+            WHERE id = {$adminUserId}
+        ";
+
+        $stm = $this->pdo->prepare($query);
+        $stm->execute();
+
+        return $stm->fetch()->company_id;
     }
 }

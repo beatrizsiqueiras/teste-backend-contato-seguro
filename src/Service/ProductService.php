@@ -89,8 +89,10 @@ class ProductService
                 active = {$body['active']}
             WHERE id = {$id}
         ");
-        if (!$stm->execute())
+
+        if (!$stm->execute()){
             return false;
+        }
 
         $this->productCategoryService->updateOne($id, $body['category_id']);
         $this->productLogService->insertOne($id, $adminUserId, LogActions::Update);

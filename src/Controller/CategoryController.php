@@ -18,8 +18,9 @@ class CategoryController
     public function getAll(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $adminUserId = $request->getHeader('admin_user_id')[0];
-        
+
         $stm = $this->service->getAll($adminUserId);
+
         $response->getBody()->write(json_encode($stm->fetchAll()));
         return $response->withStatus(200);
     }
@@ -27,6 +28,7 @@ class CategoryController
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $adminUserId = $request->getHeader('admin_user_id')[0];
+
         $stm = $this->service->getOne($adminUserId, $args['id']);
 
         $response->getBody()->write(json_encode($stm->fetchAll()));
@@ -38,11 +40,9 @@ class CategoryController
         $body = $request->getParsedBody();
         $adminUserId = $request->getHeader('admin_user_id')[0];
 
-        if ($this->service->insertOne($body, $adminUserId)) {
-            return $response->withStatus(200);
-        } else {
-            return $response->withStatus(404);
-        }
+        $status = $this->service->insertOne($body, $adminUserId) ? 200 : 404;
+
+        return $response->withStatus($status);
     }
 
     public function updateOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
@@ -50,21 +50,15 @@ class CategoryController
         $body = $request->getParsedBody();
         $adminUserId = $request->getHeader('admin_user_id')[0];
 
-        if ($this->service->updateOne($args['id'], $body, $adminUserId)) {
-            return $response->withStatus(200);
-        } else {
-            return $response->withStatus(404);
-        }
+        $status = $this->service->updateOne($args['id'], $body, $adminUserId) ? 200 : 404;
+        return $response->withStatus($status);
     }
 
     public function deleteOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $adminUserId = $request->getHeader('admin_user_id')[0];
-
-        if ($this->service->deleteOne($args['id'], $adminUserId)) {
-            return $response->withStatus(200);
-        } else {
-            return $response->withStatus(404);
-        }
+        
+        $status = $this->service->deleteOne($args['id'], $adminUserId) ? 200 : 404;
+        return $response->withStatus($status);
     }
 }
