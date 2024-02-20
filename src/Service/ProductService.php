@@ -6,6 +6,7 @@ use Contatoseguro\TesteBackend\Config\DB;
 use Contatoseguro\TesteBackend\Enum\FilterTypes;
 use Contatoseguro\TesteBackend\Enum\LogActions;
 use Contatoseguro\TesteBackend\Model\AllowedFilter;
+use stdClass;
 
 class ProductService
 {
@@ -81,16 +82,21 @@ class ProductService
 
     public function updateOne($id, $body, $adminUserId)
     {
+        $previousProduct = $this->getOne($id)->fetch();
+        $updated = array_merge(array('id' => $id), $body);
+        $updated = (object) $updated;
+        $this->compareProductArraysAndGetDifferences($previousProduct, $updated);
+        exit;
         $stm = $this->pdo->prepare("
             UPDATE product
             SET company_id = {$body['company_id']},
-                title = '{$body['title']}',
-                price = {$body['price']},
-                active = {$body['active']}
+                title = '{$body->title}',
+                price = {$body->price},
+                active = {$body->active}
             WHERE id = {$id}
         ");
 
-        if (!$stm->execute()){
+        if (!$stm->execute()) {
             return false;
         }
 
@@ -109,5 +115,22 @@ class ProductService
         }
 
         $this->productLogService->insertOne($id, $adminUserId, LogActions::Delete);
+    }
+
+    public function compareProductArraysAndGetDifferences(object $previous, object $updated)
+    {
+        unset($previous->created_at);
+        unset($updated->category_id);
+
+        $differences = new stdClass();
+
+        // foreach ($previous as $key => $prev) {
+        //     $updated = $updated->$key;
+        //     if ($prev !== $updated) {
+        //         $differences->$key = [$prev, $updated];
+        //     }
+        // }
+
+        // var_dump($differences);
     }
 }
