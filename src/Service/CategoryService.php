@@ -18,7 +18,7 @@ class CategoryService
 
     public function getAll($adminUserId)
     {
-        $companyId = $this->adminUserService->getCompanyFromAdminUser($adminUserId);
+        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
         
         $query = "
             SELECT *
@@ -35,7 +35,7 @@ class CategoryService
 
     public function getOne($adminUserId, $categoryId)
     {
-        $companyId = $this->adminUserService->getCompanyFromAdminUser($adminUserId);
+        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 
         $query = "
             SELECT *
@@ -69,7 +69,7 @@ class CategoryService
 
     public function insertOne($body, $adminUserId)
     {
-        $companyId = $this->adminUserService->getCompanyFromAdminUser($adminUserId);
+        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 
         $stm = $this->pdo->prepare("
             INSERT INTO category (
@@ -89,7 +89,7 @@ class CategoryService
     public function updateOne($id, $body, $adminUserId)
     {
         $active = (int)$body['active'];
-        $companyId = $this->adminUserService->getCompanyFromAdminUser($adminUserId);
+        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 
         $stm = $this->pdo->prepare("
             UPDATE category
@@ -104,7 +104,7 @@ class CategoryService
 
     public function deleteOne($id, $adminUserId)
     {
-        $companyId = $this->adminUserService->getCompanyFromAdminUser($adminUserId);
+        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 
         $stm = $this->pdo->prepare("
             DELETE

@@ -19,16 +19,16 @@ class AdminUserController
     {
         $companyId = $request->getHeader('company_id')[0];
 
-        $stm = $this->service->getAll($companyId);
-        $response->getBody()->write(json_encode($stm->fetchAll()));
+        $stm = $this->service->getAll(intval($companyId));
+        $response->getBody()->write(json_encode($stm));
         return $response->withStatus(200);
     }
 
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $stm = $this->service->getOne($args['id']);
+        $stm = $this->service->getOne(intval($args['id']));
 
-        $response->getBody()->write(json_encode($stm->fetchAll()));
+        $response->getBody()->write(json_encode($stm));
         return $response->withStatus(200);
     }
 
@@ -36,31 +36,21 @@ class AdminUserController
     {
         $body = $request->getParsedBody();
 
-        //alterar isso
-        if ($this->service->insertOne($body)) {
-            return $response->withStatus(200);
-        } else {
-            return $response->withStatus(404);
-        }
+        $status = $this->service->insertOne($body) ? 200 : 404;
+        return $response->withStatus($status);
     }
 
     public function updateOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $body = $request->getParsedBody();
 
-        if ($this->service->updateOne($args['id'], $body)) {
-            return $response->withStatus(200);
-        } else {
-            return $response->withStatus(404);
-        }
+        $status =  $this->service->updateOne(intval($args['id']), $body) ? 200 : 404;
+        return $response->withStatus($status);
     }
 
     public function deleteOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        if ($this->service->deleteOne($args['id'])) {
-            return $response->withStatus(200);
-        } else {
-            return $response->withStatus(404);
-        }
+        $status =  $this->service->deleteOne(intval($args['id'])) ? 200 : 404;
+        return $response->withStatus($status);
     }
 }
