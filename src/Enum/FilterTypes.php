@@ -1,6 +1,6 @@
 <?php
 
-namespace Contatoseguro\TesteBackend\Enum;
+namespace ContatoSeguro\TesteBackend\Enum;
 
 enum FilterTypes: string
 {

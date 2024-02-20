@@ -1,8 +1,8 @@
 <?php
 
-namespace Contatoseguro\TesteBackend\Model;
+namespace ContatoSeguro\TesteBackend\Model;
 
-use Contatoseguro\TesteBackend\Enum\FilterTypes;
+use ContatoSeguro\TesteBackend\Enum\FilterTypes;
 
 class AllowedFilter
 {

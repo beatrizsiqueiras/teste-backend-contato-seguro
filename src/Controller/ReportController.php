@@ -1,10 +1,10 @@
 <?php
 
-namespace Contatoseguro\TesteBackend\Controller;
+namespace ContatoSeguro\TesteBackend\Controller;
 
-use Contatoseguro\TesteBackend\Service\CompanyService;
-use Contatoseguro\TesteBackend\Service\ProductService;
-use Contatoseguro\TesteBackend\Service\ReportService;
+use ContatoSeguro\TesteBackend\Service\CompanyService;
+use ContatoSeguro\TesteBackend\Service\ProductService;
+use ContatoSeguro\TesteBackend\Service\ReportService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

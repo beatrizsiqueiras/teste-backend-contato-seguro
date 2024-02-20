@@ -1,6 +1,6 @@
 <?php
 
-namespace Contatoseguro\TesteBackend\Controller;
+namespace ContatoSeguro\TesteBackend\Controller;
 
 
 use Psr\Http\Message\ResponseInterface;

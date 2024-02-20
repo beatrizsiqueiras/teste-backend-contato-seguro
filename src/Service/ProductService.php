@@ -1,11 +1,11 @@
 <?php
 
-namespace Contatoseguro\TesteBackend\Service;
+namespace ContatoSeguro\TesteBackend\Service;
 
-use Contatoseguro\TesteBackend\Config\DB;
-use Contatoseguro\TesteBackend\Enum\FilterTypes;
-use Contatoseguro\TesteBackend\Enum\LogActions;
-use Contatoseguro\TesteBackend\Model\AllowedFilter;
+use ContatoSeguro\TesteBackend\Config\DB;
+use ContatoSeguro\TesteBackend\Enum\FilterTypes;
+use ContatoSeguro\TesteBackend\Enum\LogActions;
+use ContatoSeguro\TesteBackend\Model\AllowedFilter;
 use stdClass;
 
 class ProductService

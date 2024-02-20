@@ -1,6 +1,6 @@
 <?php
 
-namespace Contatoseguro\TesteBackend\Model;
+namespace ContatoSeguro\TesteBackend\Model;
 
 class Product
 {

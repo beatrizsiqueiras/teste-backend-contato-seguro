@@ -1,6 +1,6 @@
 <?php
 
-namespace Contatoseguro\TesteBackend\Config;
+namespace ContatoSeguro\TesteBackend\Config;
 
 class DB
 {

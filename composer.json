@@ -10,7 +10,7 @@
             "src/Helper/logs.php"
         ],
         "psr-4": {
-            "Contatoseguro\\TesteBackend\\": "src/"
+            "ContatoSeguro\\TesteBackend\\": "src/"
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-use Contatoseguro\TesteBackend\Enum\FilterTypes;
+use ContatoSeguro\TesteBackend\Enum\FilterTypes;
 
 function get_filters_query(array $queryParams, $allowedFilters = [])
 {

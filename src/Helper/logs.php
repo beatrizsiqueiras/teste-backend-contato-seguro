@@ -1,6 +1,6 @@
 <?php
 
-use Contatoseguro\TesteBackend\Enum\LogActions;
+use ContatoSeguro\TesteBackend\Enum\LogActions;
 
 function get_translated_log_action(string $action): string
 {
