@@ -7,6 +7,4 @@ enum LogActions: string
     case Create = 'create';
     case Update = 'update';
     case Delete = 'delete';
-    case Default = 'default';
-
 }

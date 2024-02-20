@@ -40,17 +40,8 @@ $app->group('/adminUsers', function (RouteCollectorProxy $group) {
     $group->get('/{id}', [AdminUserController::class, 'getOne']);
     $group->post('', [AdminUserController::class, 'insertOne']);
     $group->put('/{id}', [AdminUserController::class, 'updateOne']);
-    $group->delete('/{id}', [AdminUserController::class, 'deleteOne']);
-});
-
-$app->group('/productLogs', function (RouteCollectorProxy $group) {
-    $group->get('', [ProductLogController::class, 'getAll']);
-    $group->get('/{id}', [ProductLogController::class, 'getLogsByProductId']);
-});
-
-$app->group('/productCategory', function (RouteCollectorProxy $group) {
-    $group->get('', [ProductCategoryController::class, 'getAll']);
-    $group->get('/{id}', [ProductCategoryController::class, 'getProductCategoryById']);
+    $group->delete('/{id}', [AdminUserController::class, 'deleteOne']); 
+    ///products/4/logs
 });
 
 $app->get('/report', [ReportController::class, 'generate']);
