@@ -15,7 +15,6 @@ class ProductLogService
     {
         $this->pdo = DB::connect();
         $this->adminUserService = new AdminUserService();
-
     }
 
     public function getAll()
@@ -46,24 +45,28 @@ class ProductLogService
     }
 
 
-    public function insertOne($productId, $adminUserId, LogActions $action)
+    public function insertOne(string $productId, string $adminUserId, LogActions $action, string $before = '', string $after = '')
     {
         $actionValue = $action->value;
         $query = "INSERT INTO product_log (
             product_id,
             admin_user_id,
-            action
+            action,
+            before,
+            after
         ) VALUES (
             {$productId},
             {$adminUserId},
-            '{$actionValue}'
+            '{$actionValue}',
+            '{$before}',
+            '{$after}'
         )";
         $stm = $this->pdo->prepare($query);
 
         return $stm->execute();
     }
 
-    public function generateProductLogsString(int $productId): string // service
+    public function generateProductLogsString(int $productId): string
     {
         $productLogString = '';
         $productLogs = $this->getLogsByProductId($productId)->fetchAll();
@@ -77,7 +80,7 @@ class ProductLogService
             $logUserName = !empty($logUser) ? ucfirst($logUser->name) : "Usuário não encontrado (Id: $log->admin_user_id)";
 
             $logAction = get_translated_log_action($log->action);
-            
+
             $logDate = DateTime::createFromFormat('Y-m-d H:i:s', $log->timestamp)->format('d/m/Y H:i:s');
 
             $productLogString .= "($logUserName, $logAction, $logDate), ";

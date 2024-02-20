@@ -19,6 +19,7 @@ class AdminUserService
             SELECT *
             FROM admin_user
             WHERE company_id = {$companyId}
+            AND deleted_at IS NULL
         ";
 
         $stm = $this->pdo->prepare($query);

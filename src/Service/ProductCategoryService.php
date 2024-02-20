@@ -19,6 +19,7 @@ class ProductCategoryService
             FROM product_category pc
             INNER JOIN product p ON p.id = pc.product_id
             AND p.company_id = {$company_id}
+            AND pc.deleted_at IS NULL
         ";
 
         $stm = $this->pdo->prepare($query);

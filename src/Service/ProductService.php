@@ -35,6 +35,7 @@ class ProductService
             INNER JOIN category c ON c.id = pc.cat_id
             WHERE p.company_id = {$adminUserId}
             $filtersQuery
+            AND p.deleted_at IS NULL
         ";
 
         $stm = $this->pdo->prepare($query);
@@ -83,16 +84,19 @@ class ProductService
     public function updateOne($id, $body, $adminUserId)
     {
         $previousProduct = $this->getOne($id)->fetch();
-        $updated = array_merge(array('id' => $id), $body);
-        $updated = (object) $updated;
-        $this->compareProductArraysAndGetDifferences($previousProduct, $updated);
-        exit;
+
+        $updatedProduct = (object) (array_merge(array('id' => intval($id)), $body));
+        $updatedProduct->active = intval($updatedProduct->active);
+
+        [$productBefore, $produtcAfter] = $this->getPreviousAndUpdatedFields($previousProduct, $updatedProduct);
+
+
         $stm = $this->pdo->prepare("
             UPDATE product
             SET company_id = {$body['company_id']},
-                title = '{$body->title}',
-                price = {$body->price},
-                active = {$body->active}
+                title = '{$body['title']}',
+                price = {$body['price']},
+                active = {$body['active']}
             WHERE id = {$id}
         ");
 
@@ -101,14 +105,14 @@ class ProductService
         }
 
         $this->productCategoryService->updateOne($id, $body['category_id']);
-        $this->productLogService->insertOne($id, $adminUserId, LogActions::Update);
+        $this->productLogService->insertOne($id, $adminUserId, LogActions::Update, json_encode($productBefore), json_encode($produtcAfter));
     }
 
     public function deleteOne($id, $adminUserId)
     {
         $this->productCategoryService->deleteOne($id);
 
-        $stm = $this->pdo->prepare("DELETE FROM product WHERE id = {$id}");
+        $stm = $this->pdo->prepare("UPDATE product SET active = 0 WHERE id = {$id}");
 
         if (!$stm->execute()) {
             return false;
@@ -117,20 +121,22 @@ class ProductService
         $this->productLogService->insertOne($id, $adminUserId, LogActions::Delete);
     }
 
-    public function compareProductArraysAndGetDifferences(object $previous, object $updated)
+    public function getPreviousAndUpdatedFields(object $previous, object $updated)
     {
+
         unset($previous->created_at);
         unset($updated->category_id);
 
-        $differences = new stdClass();
+        $previousFields = new stdClass();
+        $updatedFields = new stdClass();
 
-        // foreach ($previous as $key => $prev) {
-        //     $updated = $updated->$key;
-        //     if ($prev !== $updated) {
-        //         $differences->$key = [$prev, $updated];
-        //     }
-        // }
+        foreach ($updated as $key => $value) {
+            if (property_exists($previous, $key) && $previous->{$key} !== $value) {
+                $updatedFields->{$key} = $value;
+                $previousFields->{$key} = $previous->{$key};
+            }
+        }
 
-        // var_dump($differences);
+        return [$previousFields, $updatedFields];
     }
 }
