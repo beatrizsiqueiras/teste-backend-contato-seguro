@@ -17,28 +17,28 @@ class CategoryController
 
     public function getAll(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $adminUserId = $request->getHeader('admin_user_id')[0];
+        $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
         $stm = $this->service->getAll($adminUserId);
 
-        $response->getBody()->write(json_encode($stm->fetchAll()));
+        $response->getBody()->write(json_encode($stm));
         return $response->withStatus(200);
     }
 
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $adminUserId = $request->getHeader('admin_user_id')[0];
+        $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
         $stm = $this->service->getOne($adminUserId, $args['id']);
 
-        $response->getBody()->write(json_encode($stm->fetchAll()));
+        $response->getBody()->write(json_encode($stm));
         return $response->withStatus(200);
     }
 
     public function insertOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $body = $request->getParsedBody();
-        $adminUserId = $request->getHeader('admin_user_id')[0];
+        $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
         $status = $this->service->insertOne($body, $adminUserId) ? 200 : 404;
 
@@ -48,17 +48,17 @@ class CategoryController
     public function updateOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $body = $request->getParsedBody();
-        $adminUserId = $request->getHeader('admin_user_id')[0];
+        $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
-        $status = $this->service->updateOne($args['id'], $body, $adminUserId) ? 200 : 404;
+        $status = $this->service->updateOne(intval($args['id']), $body, $adminUserId) ? 200 : 404;
         return $response->withStatus($status);
     }
 
     public function deleteOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $adminUserId = $request->getHeader('admin_user_id')[0];
-        
-        $status = $this->service->deleteOne($args['id'], $adminUserId) ? 200 : 404;
+        $adminUserId = intval(($request->getHeader('admin_user_id')[0]));
+
+        $status = $this->service->deleteOne(intval($args['id']), $adminUserId) ? 200 : 404;
         return $response->withStatus($status);
     }
 }

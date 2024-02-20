@@ -8,7 +8,7 @@ use Exception;
 class AdminUserService
 {
     private \PDO $pdo;
-    private $date;
+    private string $date;
 
     public function __construct()
     {
@@ -148,7 +148,7 @@ class AdminUserService
             $stmt->execute();
             $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-            return $result ? $result['company_id'] : null;
+            return $result ? intval($result['company_id']) : null;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
             return null;

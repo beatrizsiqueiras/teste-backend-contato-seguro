@@ -28,26 +28,33 @@ class ProductCategoryService
         return $stm;
     }
 
-    public function getProductCategoryById($id, $company_id)
+    public function getProductCategoriesByProductId(int $productId)
     {
-        $stm = $this->pdo->prepare("
-            SELECT pc.*
-            FROM product_category pc
-            INNER JOIN product p ON p.id = pc.product_id
-            WHERE product_id = {$id}
-            AND p.company_id = {$company_id}
-        ");
+        $query = "
+            SELECT c.id
+            FROM category c
+            INNER JOIN product_category pc
+                ON pc.category_id = c.id
+            WHERE pc.product_id = :productId
+        ";
 
-        $stm->execute();
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':productId', $productId, \PDO::PARAM_INT);
 
-        return $stm;
+        try {
+            $stmt->execute();
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return $stmt;
+        }
     }
 
     public function insertOne($productId, $categoryId)
     {
         $query = "INSERT INTO product_category (
             product_id,
-            cat_id
+            category_id
         ) VALUES (
             {$productId},
             {$categoryId}
@@ -60,7 +67,7 @@ class ProductCategoryService
 
     public function updateOne($productId, $categoryId)
     {
-        $query = "UPDATE product_category SET cat_id = {$categoryId} WHERE product_id = {$productId}";
+        $query = "UPDATE product_category SET category_id = {$categoryId} WHERE product_id = {$productId}";
 
         $stm = $this->pdo->prepare($query);
 

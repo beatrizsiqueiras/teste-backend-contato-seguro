@@ -9,31 +9,39 @@ class CategoryService
 {
     private \PDO $pdo;
     private AdminUserService $adminUserService;
+    private string $date;
 
     public function __construct()
     {
         $this->pdo = DB::connect();
         $this->adminUserService = new AdminUserService();
+        $this->date =  date('Y-m-d H:i:s');
     }
 
-    public function getAll($adminUserId)
+    public function getAll(int $adminUserId)
     {
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
-        
+
         $query = "
             SELECT *
             FROM category 
-            WHERE company_id = $companyId OR company_id IS NULL
-            AND deleted_at IS NULL;
+            WHERE company_id = :companyId OR company_id IS NULL
+            AND deleted_at IS NULL
         ";
 
-        $stm = $this->pdo->prepare($query);
-        $stm->execute();
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
 
-        return $stm;
+        try {
+            $stmt->execute();
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return [];
+        }
     }
 
-    public function getOne($adminUserId, $categoryId)
+    public function getOne(int $adminUserId, int $categoryId)
     {
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 
@@ -41,93 +49,119 @@ class CategoryService
             SELECT *
             FROM category c
             WHERE c.active = 1
-            AND (c.company_id = {$companyId} OR c.company_id IS NULL)
-            AND c.id = {$categoryId}
+            AND (c.company_id = :companyId OR c.company_id IS NULL)
+            AND c.id = :categoryId
         ";
 
-        $stm = $this->pdo->prepare($query);
-        $stm->execute();
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
+        $stmt->bindParam(':categoryId', $categoryId, \PDO::PARAM_INT);
 
-        return $stm;
+        try {
+            $stmt->execute();
+            return $stmt->fetch(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return null;
+        }
     }
 
-    public function getProductCategory($productId)
-    {
-        $query = "
-            SELECT c.id
-            FROM category c
-            INNER JOIN product_category pc
-                ON pc.cat_id = c.id
-            WHERE pc.product_id = {$productId}
-        ";
-
-        $stm = $this->pdo->prepare($query);
-        $stm->execute();
-
-        return $stm;
-    }
-
-    public function insertOne($body, $adminUserId)
+    public function insertOne(array $body, int $adminUserId)
     {
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 
-        $stm = $this->pdo->prepare("
+        $query = "
             INSERT INTO category (
                 company_id,
                 title,
-                active
+                active,
+                created_at
             ) VALUES (
-                {$companyId},
-                '{$body['title']}',
-                {$body['active']}
+                :companyId,
+                :title,
+                :active,
+                :created_at
             )
-        ");
+        ";
 
-        return $stm->execute();
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
+        $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
+        $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
+        $stmt->bindParam(':created_at', $this->date, \PDO::PARAM_STR);
+
+        try {
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return false;
+        }
     }
 
-    public function updateOne($id, $body, $adminUserId)
+    public function updateOne(int $id, array $body, int $adminUserId)
     {
-        $active = (int)$body['active'];
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 
-        $stm = $this->pdo->prepare("
+        $query = "
             UPDATE category
-            SET title = '{$body['title']}',
-                active = {$active}
-            WHERE id = {$id}
-            AND company_id = {$companyId}
-        ");
+            SET title = :title,
+                active = :active
+                updated_at = :updated_at
+            WHERE id = :id
+            AND company_id = :companyId
+        ";
 
-        return $stm->execute();
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
+        $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
+        $stmt->bindParam(':updated_at', $this->date, \PDO::PARAM_STR);
+        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
+
+        try {
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return false;
+        }
     }
 
-    public function deleteOne($id, $adminUserId)
+    public function deleteOne(int $id, int $adminUserId)
     {
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+        $query = "
+            UPDATE category
+                SET deleted_at = :deleted_at
+            WHERE id = :id
+            AND company_id = :companyId
+        ";
 
-        $stm = $this->pdo->prepare("
-            DELETE
-            FROM category
-            WHERE id = {$id}
-            AND company_id = {$companyId}
-        ");
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':deleted_at', $this->date, \PDO::PARAM_STR);
+        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
 
-        return $stm->execute();
+        try {
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return false;
+        }
     }
 
-    public function getAllProductCategoryTitles(int $adminUserId, array $categoryIds)
+    public function getCategoriesTitlesById(int $adminUserId, array $categoryIds)
     {
+        $categoryTitles = [];
+
         if (empty($categoryIds)) {
-            throw new Exception("Empty array");
+            return $categoryTitles;
         }
 
-        $categoryTitles = array();
-
         foreach ($categoryIds as $category) {
-            $fetchedCategory = $this->getOne($adminUserId, $category->id)->fetch();
-
-            $categoryTitles[] = $fetchedCategory->title;
+            $fetchedCategory = $this->getOne($adminUserId, intval($category['id']));
+            if ($fetchedCategory) {
+                $categoryTitles[] = $fetchedCategory['title'];
+            }
         }
 
         return $categoryTitles;
