@@ -25,8 +25,8 @@ class CategoryService
         $query = "
             SELECT *
             FROM category 
-            WHERE company_id = :companyId OR company_id IS NULL
-            AND deleted_at IS NULL
+            WHERE deleted_at IS NULL
+            AND company_id = :companyId OR company_id IS NULL
         ";
 
         $stmt = $this->pdo->prepare($query);
