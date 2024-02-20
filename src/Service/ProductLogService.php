@@ -3,7 +3,9 @@
 namespace Contatoseguro\TesteBackend\Service;
 
 use Contatoseguro\TesteBackend\Config\DB;
+use Contatoseguro\TesteBackend\Enum\FilterTypes;
 use Contatoseguro\TesteBackend\Enum\LogActions;
+use Contatoseguro\TesteBackend\Model\AllowedFilter;
 use DateTime;
 
 class ProductLogService
@@ -17,11 +19,32 @@ class ProductLogService
         $this->adminUserService = new AdminUserService();
     }
 
-    public function getAll()
+    public function getAll(array $queryParams = [])
     {
+        $filtersQuery = get_filters_query($queryParams, [
+            'adminUserId' => new AllowedFilter('pl.admin_user_id'),
+            'productId' => new AllowedFilter('pl.product_id'),
+            'action' => new AllowedFilter('pl.action', FilterTypes::String),
+            'updatedField' => new AllowedFilter('pl.after', FilterTypes::CompareString),
+            'createdAt' => new AllowedFilter('pl.created_at', FilterTypes::Date)
+        ]);
+
         $query = "
-            SELECT *
-            FROM product_log
+            SELECT 
+                pl.id as logId,
+                pl.admin_user_id AS userId,
+                au.name AS userName,
+                pl.product_id AS productId,
+                p.title AS productName,
+                pl.action,
+                pl.before,
+                pl.after,
+                pl.created_at as logDate
+            FROM product_log AS pl
+            INNER JOIN admin_user AS au ON au.id = pl.admin_user_id
+            INNER JOIN product as p ON p.id = pl.product_id
+            WHERE pl.deleted_at IS NULL
+            $filtersQuery ;
         ";
 
         $stm = $this->pdo->prepare($query);
@@ -29,7 +52,6 @@ class ProductLogService
 
         return $stm;
     }
-
 
     public function getLogsByProductId($productId)
     {
@@ -43,7 +65,6 @@ class ProductLogService
 
         return $stm;
     }
-
 
     public function insertOne(string $productId, string $adminUserId, LogActions $action, string $before = '', string $after = '')
     {
@@ -81,7 +102,7 @@ class ProductLogService
 
             $logAction = get_translated_log_action($log->action);
 
-            $logDate = DateTime::createFromFormat('Y-m-d H:i:s', $log->timestamp)->format('d/m/Y H:i:s');
+            $logDate = DateTime::createFromFormat('Y-m-d H:i:s', $log->created_at)->format('d/m/Y H:i:s');
 
             $productLogString .= "($logUserName, $logAction, $logDate), ";
         }

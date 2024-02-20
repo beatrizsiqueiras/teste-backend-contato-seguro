@@ -13,8 +13,15 @@ function get_filters_query(array $queryParams, $allowedFilters = [])
         switch ($filter->type) {
             case FilterTypes::Date:
                 $date = DateTime::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+                $filtersQuery .= "AND STRFTIME('%Y-%m-%d', $filter->columnName) = '$date' ";
+                break;
 
-                $filtersQuery .= "AND STRFTIME('%Y-%m-%d', $filter->columnName) = '$date'";
+            case FilterTypes::CompareString:
+                $filtersQuery .= "AND $filter->columnName LIKE '%$value%' ";
+                break;
+
+            case FilterTypes::String:
+                $filtersQuery .= "AND $filter->columnName = '$value' ";
                 break;
 
             default:
@@ -22,6 +29,5 @@ function get_filters_query(array $queryParams, $allowedFilters = [])
                 break;
         }
     }
-
     return $filtersQuery;
 }

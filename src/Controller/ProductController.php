@@ -4,6 +4,7 @@ namespace Contatoseguro\TesteBackend\Controller;
 
 use Contatoseguro\TesteBackend\Model\Product;
 use Contatoseguro\TesteBackend\Service\CategoryService;
+use Contatoseguro\TesteBackend\Service\ProductLogService;
 use Contatoseguro\TesteBackend\Service\ProductService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,20 +13,22 @@ class ProductController
 {
     private ProductService $service;
     private CategoryService $categoryService;
+    private ProductLogService $productLogService;
 
     public function __construct()
     {
         $this->service = new ProductService();
         $this->categoryService = new CategoryService();
+        $this->productLogService = new ProductLogService();
     }
 
     public function getAll(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $adminUserId = $request->getHeader('admin_user_id')[0];
-        $queryParams = $request->getQueryParams();        
+        $queryParams = $request->getQueryParams();
 
         $stm = $this->service->getAll($adminUserId, $queryParams);
-        
+
         $response->getBody()->write(json_encode($stm->fetchAll()));
         return $response->withStatus(200);
     }
@@ -33,13 +36,11 @@ class ProductController
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $stm = $this->service->getOne($args['id']);
-
         $product = Product::hydrateByFetch($stm->fetch());
 
         $adminUserId = $request->getHeader('admin_user_id')[0];
 
         $productCategory = $this->categoryService->getProductCategory($product->id)->fetchAll();
-
         $productCategoryTitles = $this->categoryService->getAllProductCategoryTitles($adminUserId, $productCategory);
 
         $product->setCategory($productCategoryTitles);
@@ -81,5 +82,16 @@ class ProductController
         } else {
             return $response->withStatus(404);
         }
+    }
+
+    public function getProductLogs(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $queryParams = $request->getQueryParams();
+        $productId = $args['id'];
+
+        $stm = $this->productLogService->getLogsByProductId($productId, $queryParams);
+
+        $response->getBody()->write(json_encode($stm->fetchAll()));
+        return $response->withStatus(200);
     }
 }

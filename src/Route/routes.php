@@ -22,6 +22,7 @@ $app->group('/companies', function (RouteCollectorProxy $group) {
 $app->group('/products', function (RouteCollectorProxy $group) {
     $group->get('', [ProductController::class, 'getAll']);
     $group->get('/{id}', [ProductController::class, 'getOne']);
+    $group->get('/{id}/logs', [ProductController::class, 'getProductLogs']);
     $group->post('', [ProductController::class, 'insertOne']);
     $group->put('/{id}', [ProductController::class, 'updateOne']);
     $group->delete('/{id}', [ProductController::class, 'deleteOne']);
@@ -40,8 +41,11 @@ $app->group('/adminUsers', function (RouteCollectorProxy $group) {
     $group->get('/{id}', [AdminUserController::class, 'getOne']);
     $group->post('', [AdminUserController::class, 'insertOne']);
     $group->put('/{id}', [AdminUserController::class, 'updateOne']);
-    $group->delete('/{id}', [AdminUserController::class, 'deleteOne']); 
-    ///products/4/logs
+    $group->delete('/{id}', [AdminUserController::class, 'deleteOne']);
 });
 
 $app->get('/report', [ReportController::class, 'generate']);
+
+$app->group('/productLogs', function (RouteCollectorProxy $group) {
+    $group->get('', [ProductLogController::class, 'getAll']);
+});

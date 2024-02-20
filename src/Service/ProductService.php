@@ -34,8 +34,8 @@ class ProductService
             INNER JOIN product_category pc ON pc.product_id = p.id
             INNER JOIN category c ON c.id = pc.cat_id
             WHERE p.company_id = {$adminUserId}
-            $filtersQuery
             AND p.deleted_at IS NULL
+            $filtersQuery
         ";
 
         $stm = $this->pdo->prepare($query);
@@ -84,19 +84,15 @@ class ProductService
     public function updateOne($id, $body, $adminUserId)
     {
         $previousProduct = $this->getOne($id)->fetch();
-
-        $updatedProduct = (object) (array_merge(array('id' => intval($id)), $body));
-        $updatedProduct->active = intval($updatedProduct->active);
-
-        [$productBefore, $produtcAfter] = $this->getPreviousAndUpdatedFields($previousProduct, $updatedProduct);
-
+        $updatedAt = date('Y-m-d H:i:s');
 
         $stm = $this->pdo->prepare("
             UPDATE product
             SET company_id = {$body['company_id']},
                 title = '{$body['title']}',
                 price = {$body['price']},
-                active = {$body['active']}
+                active = {$body['active']},
+                updated_at = '{$updatedAt}'
             WHERE id = {$id}
         ");
 
@@ -105,14 +101,20 @@ class ProductService
         }
 
         $this->productCategoryService->updateOne($id, $body['category_id']);
+
+        $updatedProduct = $this->getOne($id)->fetch();;
+
+        [$productBefore, $produtcAfter] = $this->getPreviousAndUpdatedProductFields($previousProduct, $updatedProduct);
+
         $this->productLogService->insertOne($id, $adminUserId, LogActions::Update, json_encode($productBefore), json_encode($produtcAfter));
     }
 
     public function deleteOne($id, $adminUserId)
     {
         $this->productCategoryService->deleteOne($id);
+        $deletedAt = date('Y-m-d H:i:s');
 
-        $stm = $this->pdo->prepare("UPDATE product SET active = 0 WHERE id = {$id}");
+        $stm = $this->pdo->prepare("UPDATE product SET deleted_at = '{$deletedAt}' WHERE id = {$id}");
 
         if (!$stm->execute()) {
             return false;
@@ -121,12 +123,8 @@ class ProductService
         $this->productLogService->insertOne($id, $adminUserId, LogActions::Delete);
     }
 
-    public function getPreviousAndUpdatedFields(object $previous, object $updated)
+    public function getPreviousAndUpdatedProductFields(object $previous, object $updated)
     {
-
-        unset($previous->created_at);
-        unset($updated->category_id);
-
         $previousFields = new stdClass();
         $updatedFields = new stdClass();
 
