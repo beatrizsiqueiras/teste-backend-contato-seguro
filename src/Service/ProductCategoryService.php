@@ -99,7 +99,7 @@ class ProductCategoryService
             UPDATE 
                 product_category 
             SET 
-                category_id = :categoryId 
+                category_id = :categoryId,
                 updated_at = :updatedAt
             WHERE product_id = :productId
             ";
