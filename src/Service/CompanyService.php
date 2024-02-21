@@ -4,6 +4,7 @@ namespace ContatoSeguro\TesteBackend\Service;
 
 use ContatoSeguro\TesteBackend\Config\DB;
 use PDO;
+use PDOStatement;
 
 class CompanyService
 {
@@ -14,18 +15,21 @@ class CompanyService
         $this->pdo = DB::connect();
     }
 
-    public function getAll()
+    public function getAll(): array
     {
-        $query = "
-            SELECT *
-            FROM company 
-            WHERE deleted_at IS NULL
-        ";
-
-        $stmt = $this->pdo->prepare($query);
-
         try {
+            $query = "
+            SELECT 
+                *
+            FROM 
+                company 
+            WHERE
+                deleted_at IS NULL
+            ";
+
+            $stmt = $this->pdo->prepare($query);
             $stmt->execute();
+
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
@@ -33,37 +37,46 @@ class CompanyService
         }
     }
 
-    public function getOne(int $id)
+    public function getOne(int $id): PDOStatement
     {
-        $query = "
-            SELECT *
-            FROM company 
-            WHERE id = :id
-        ";
-
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-
         try {
+            $query = "
+            SELECT
+                *
+            FROM
+                company 
+            WHERE
+                id = :id
+            ";
+
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
             $stmt->execute();
-            return $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            return $stmt;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
             return null;
         }
     }
 
-    public function getNameById(int $id)
+    public function getNameById(int $id): string
     {
-        $query = "SELECT name FROM company WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-
         try {
+            $query = "
+            SELECT
+                name
+            FROM
+                company
+            WHERE
+                id = :id
+            ";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            return $result ? $result['name'] : null;
+            return $result ? $result['name'] : '';
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
             return null;

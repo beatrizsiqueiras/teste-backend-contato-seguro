@@ -5,6 +5,7 @@ namespace ContatoSeguro\TesteBackend\Service;
 use ContatoSeguro\TesteBackend\Config\DB;
 use ContatoSeguro\TesteBackend\Enum\FilterTypes;
 use ContatoSeguro\TesteBackend\Enum\LogActions;
+use ContatoSeguro\TesteBackend\Model\AdminUser;
 use ContatoSeguro\TesteBackend\Model\AllowedFilter;
 use DateTime;
 
@@ -99,9 +100,10 @@ class ProductLogService
 
         $logStrings = [];
         foreach ($productLogs as $log) {
-            $logUser = $this->adminUserService->getOne($log['admin_user_id']);
+            $stmt = $this->adminUserService->getOne($log['admin_user_id']);
+            $logUser = AdminUser::hydrateByFetch($stmt->fetch());
 
-            $logUserName = !empty($logUser) ? ucfirst($logUser['name']) : "Usuário não encontrado (Id: {$log['admin_user_id']})";
+            $logUserName = !empty($logUser) ? ucfirst($logUser->name) : "Usuário não encontrado (Id: {$log['admin_user_id']})";
             $logAction = get_translated_log_action($log['action']);
             $logDate = DateTime::createFromFormat('Y-m-d H:i:s', $log['created_at'])->format('d/m/Y H:i:s');
 

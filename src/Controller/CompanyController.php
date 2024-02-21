@@ -2,6 +2,7 @@
 
 namespace ContatoSeguro\TesteBackend\Controller;
 
+use ContatoSeguro\TesteBackend\Model\Company;
 use ContatoSeguro\TesteBackend\Service\CompanyService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -36,14 +37,16 @@ class CompanyController
     {
         try {
 
-            $company = $this->service->getOne(intval($args['id']));
+            $stmt = $this->service->getOne(intval($args['id']));
+            $category = Company::hydrateByFetch($stmt->fetch());
 
             $responseData = [
                 'success' => true,
-                'data' => $company
+                'data' => $category
             ];
 
             $response->getBody()->write(json_encode($responseData));
+
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
