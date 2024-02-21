@@ -30,7 +30,6 @@ class ProductController
         try {
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
             $queryParams = $request->getQueryParams();
-
             $products = $this->service->getAll($adminUserId, $queryParams);
 
             $responseData = [
@@ -49,7 +48,7 @@ class ProductController
     {
         try {
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
-            
+
             $stmt = $this->service->getOne(intval($args['id']), $adminUserId);
             $product = Product::hydrateByFetch($stmt->fetch());
 
@@ -107,7 +106,8 @@ class ProductController
                     'success' => false,
                     'message' => 'Falha ao atualizar produto.'
                 ];
-                return $response->withStatus(400);
+
+                return $response->withStatus(400)->getBody()->write(json_encode($responseData));
             }
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
@@ -152,6 +152,7 @@ class ProductController
             ];
 
             $response->getBody()->write(json_encode($responseData));
+
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
