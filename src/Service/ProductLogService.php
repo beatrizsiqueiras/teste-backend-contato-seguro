@@ -50,7 +50,7 @@ class ProductLogService
         $stm = $this->pdo->prepare($query);
         $stm->execute();
 
-        return $stm;
+        return $stm->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function getLogsByProductId($productId)
@@ -58,9 +58,10 @@ class ProductLogService
         $stm = $this->pdo->prepare("
             SELECT *
             FROM product_log
-            WHERE product_id = {$productId}
+            WHERE product_id = :productId
         ");
 
+        $stm->bindParam(":productId", $productId, \PDO::PARAM_INT);
         $stm->execute();
 
         return $stm->fetchAll(\PDO::FETCH_ASSOC);
@@ -68,45 +69,44 @@ class ProductLogService
 
     public function insertOne(string $productId, string $adminUserId, LogActions $action, string $before = '', string $after = '')
     {
-        $actionValue = $action->value;
         $query = "INSERT INTO product_log (
             product_id,
             admin_user_id,
             action,
             before,
             after
-        ) VALUES (
-            {$productId},
-            {$adminUserId},
-            '{$actionValue}',
-            '{$before}',
-            '{$after}'
-        )";
+        ) VALUES (:product_id, :admin_user_id, :action, :before, :after)";
+
         $stm = $this->pdo->prepare($query);
+
+        $stm->bindParam(":product_id", $productId, \PDO::PARAM_INT);
+        $stm->bindParam(":admin_user_id", $adminUserId, \PDO::PARAM_INT);
+        $stm->bindParam(":action", $action->value, \PDO::PARAM_STR);
+        $stm->bindParam(":before", $after, \PDO::PARAM_STR);
+        $stm->bindParam(":after", $before, \PDO::PARAM_STR);
 
         return $stm->execute();
     }
 
     public function generateProductLogsString(int $productId): string
     {
-        $productLogString = '';
         $productLogs = $this->getLogsByProductId($productId);
 
         if (empty($productLogs)) {
             return 'Logs não encontrados';
         }
 
+        $logStrings = [];
         foreach ($productLogs as $log) {
-            $logUser = $this->adminUserService->getOne($log->admin_user_id)->fetch();
-            $logUserName = !empty($logUser) ? ucfirst($logUser->name) : "Usuário não encontrado (Id: $log->admin_user_id)";
+            $logUser = $this->adminUserService->getOne($log['admin_user_id']);
 
-            $logAction = get_translated_log_action($log->action);
+            $logUserName = !empty($logUser) ? ucfirst($logUser['name']) : "Usuário não encontrado (Id: {$log['admin_user_id']})";
+            $logAction = get_translated_log_action($log['action']);
+            $logDate = DateTime::createFromFormat('Y-m-d H:i:s', $log['created_at'])->format('d/m/Y H:i:s');
 
-            $logDate = DateTime::createFromFormat('Y-m-d H:i:s', $log->created_at)->format('d/m/Y H:i:s');
-
-            $productLogString .= "($logUserName, $logAction, $logDate), ";
+            $logStrings[] = "($logUserName, $logAction, $logDate)";
         }
 
-        return $productLogString;
+        return implode(", ", $logStrings);
     }
 }

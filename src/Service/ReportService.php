@@ -32,11 +32,12 @@ class ReportService
         ];
 
         $stm = $this->productService->getAll($adminUserId);
-        $products = $stm->fetchAll();
+        $products = $stm;
 
         foreach ($products as $i => $product) {
-            $stm = $this->companyService->getNameById($product->company_id);
-            $companyName = $stm->fetch()->name;
+            $product = (object) $product;
+
+            $companyName = $this->companyService->getNameById($product->company_id);
 
             $productLogs = $this->productLogService->generateProductLogsString($product->id);
 
