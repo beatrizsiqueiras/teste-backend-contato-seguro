@@ -69,6 +69,7 @@ class CategoryService
     public function insertOne(array $body, int $adminUserId)
     {
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+        $this->pdo->beginTransaction();
 
         $query = "
             INSERT INTO category (
@@ -91,9 +92,13 @@ class CategoryService
         $stmt->bindParam(':created_at', $this->date, \PDO::PARAM_STR);
 
         try {
-            return $stmt->execute();
+            $stmt->execute();
+            $this->pdo->commit();
+            return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            $this->pdo->rollBack();
+
             return false;
         }
     }
@@ -101,6 +106,7 @@ class CategoryService
     public function updateOne(int $id, array $body, int $adminUserId)
     {
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+        $this->pdo->beginTransaction();
 
         $query = "
             UPDATE category
@@ -119,16 +125,24 @@ class CategoryService
         $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
 
         try {
-            return $stmt->execute();
+            $stmt->execute();
+            $this->pdo->commit();
+
+            return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            $this->pdo->rollBack();
+
             return false;
+        } finally {
         }
     }
 
     public function deleteOne(int $id, int $adminUserId)
     {
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+        $this->pdo->beginTransaction();
+
         $query = "
             UPDATE category
                 SET deleted_at = :deleted_at
@@ -142,9 +156,14 @@ class CategoryService
         $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
 
         try {
-            return $stmt->execute();
+            $this->pdo->commit();
+            $stmt->execute();
+            
+            return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            $this->pdo->rollBack();
+
             return false;
         }
     }

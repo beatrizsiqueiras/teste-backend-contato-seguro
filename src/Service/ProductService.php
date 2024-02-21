@@ -13,114 +13,206 @@ class ProductService
     private \PDO $pdo;
     private ProductLogService $productLogService;
     private ProductCategoryService $productCategoryService;
+    private AdminUserService $adminUserService;
 
     public function __construct()
     {
         $this->pdo = DB::connect();
         $this->productLogService = new ProductLogService();
         $this->productCategoryService = new ProductCategoryService();
+        $this->adminUserService = new AdminUserService();
     }
 
-    public function getAll(string $adminUserId, array $queryParams = [])
+    public function getAll(int $adminUserId, array $queryParams = []): array
     {
         $filtersQuery = get_filters_query($queryParams, [
             'createdAt' => new AllowedFilter('p.created_at', FilterTypes::Date),
             'active' => new AllowedFilter('p.active')
         ]);
 
+        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+
         $query = "
             SELECT p.*, c.title as category
             FROM product p
             INNER JOIN product_category pc ON pc.product_id = p.id
             INNER JOIN category c ON c.id = pc.category_id
-            WHERE p.company_id = {$adminUserId}
-            AND p.deleted_at IS NULL
+            WHERE p.deleted_at IS NULL
+            AND p.company_id = :companyId
             $filtersQuery
         ";
 
-        $stm = $this->pdo->prepare($query);
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
 
-        $stm->execute();
-
-        return $stm;
+        try {
+            $stmt->execute();
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return [];
+        }
     }
 
-    public function getOne($id)
+    public function getOne(int $id, int $adminUserId)
     {
-        $stm = $this->pdo->prepare("
+        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+
+        $query = "
             SELECT *
             FROM product
-            WHERE id = {$id}
-        ");
+            WHERE id = :id
+            AND company_id = :companyId
+        ";
 
-        $stm->execute();
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
 
-        return $stm;
+        try {
+            $stmt->execute();
+            return $stmt;
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return null;
+        }
     }
 
-    public function insertOne($body, $adminUserId)
+    public function insertOne(array $body, string $adminUserId): bool
     {
-        $stm = $this->pdo->prepare("
+        $this->pdo->beginTransaction();
+
+        $query = "
             INSERT INTO product (
                 company_id,
                 title,
                 price,
                 active
             ) VALUES (
-                $body[company_id],
-                '$body[title]',
-                $body[price],
-                $body[active]
+                :companyId,
+                :title,
+                :price,
+                :active
             )
-        ");
-        $stm->execute();
+        ";
 
-        $productId = $this->pdo->lastInsertId();
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':companyId', $body['company_id'], \PDO::PARAM_INT);
+        $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
+        $stmt->bindParam(':price', $body['price'], \PDO::PARAM_INT);
+        $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
 
-        $this->productCategoryService->insertOne($productId, $body['category_id']);
-        $this->productLogService->insertOne($productId, $adminUserId, LogActions::Create);
+        try {
+            $stmt->execute();
+            $productId = $this->pdo->lastInsertId();
+
+            $this->productCategoryService->insertOne($productId, $body['category_id']);
+            $this->productLogService->insertOne(intval($productId), intval($adminUserId), LogActions::Create);
+            $this->pdo->commit();
+
+            return true;
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            $this->pdo->rollBack();
+
+            return false;
+        }
     }
 
-    public function updateOne($id, $body, $adminUserId)
+    public function updateOne(int $id, array $body, string $adminUserId): bool
     {
-        $previousProduct = $this->getOne($id)->fetch();
+        $previousProduct = $this->getOne($id, $adminUserId)->fetch(\PDO::FETCH_ASSOC);
+        if (!$previousProduct) {
+            return false;
+        }
+        $this->pdo->beginTransaction();
+
         $updatedAt = date('Y-m-d H:i:s');
 
-        $stm = $this->pdo->prepare("
+        $query = "
             UPDATE product
-            SET company_id = {$body['company_id']},
-                title = '{$body['title']}',
-                price = {$body['price']},
-                active = {$body['active']},
-                updated_at = '{$updatedAt}'
-            WHERE id = {$id}
-        ");
+            SET company_id = :companyId,
+                title = :title,
+                price = :price,
+                active = :active,
+                updated_at = :updatedAt
+            WHERE id = :id
+        ";
 
-        if (!$stm->execute()) {
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':companyId', $body['company_id'], \PDO::PARAM_INT);
+        $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
+        $stmt->bindParam(':price', $body['price'], \PDO::PARAM_INT);
+        $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
+        $stmt->bindParam(':updatedAt', $updatedAt, \PDO::PARAM_STR);
+        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+
+        try {
+            if (!$stmt->execute()) {
+                return false;
+            }
+
+            $this->productCategoryService->updateOne($id, $body['category_id']);
+
+            $updatedProduct = $this->getOne($id, $adminUserId)->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$updatedProduct) {
+                return false;
+            }
+
+            [$productBefore, $produtcAfter] = $this->getPreviousAndUpdatedProductFields((object)$previousProduct, (object)$updatedProduct);
+
+            $this->productLogService->insertOne(
+                $id,
+                $adminUserId,
+                LogActions::Update,
+                json_encode($productBefore),
+                json_encode($produtcAfter)
+            );
+
+            $this->pdo->commit();
+
+            return true;
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            $this->pdo->rollBack();
+
             return false;
         }
-
-        $this->productCategoryService->updateOne($id, $body['category_id']);
-
-        $updatedProduct = $this->getOne($id)->fetch();;
-
-        [$productBefore, $produtcAfter] = $this->getPreviousAndUpdatedProductFields($previousProduct, $updatedProduct);
-
-        $this->productLogService->insertOne($id, $adminUserId, LogActions::Update, json_encode($productBefore), json_encode($produtcAfter));
     }
 
-    public function deleteOne($id, $adminUserId)
+    public function deleteOne(int $id, string $adminUserId): bool
     {
-        $this->productCategoryService->deleteOne($id);
+        $this->pdo->beginTransaction();
+
         $deletedAt = date('Y-m-d H:i:s');
 
-        $stm = $this->pdo->prepare("UPDATE product SET deleted_at = '{$deletedAt}' WHERE id = {$id}");
+        $query = "
+            UPDATE product
+            SET deleted_at = :deletedAt
+            WHERE id = :id
+        ";
 
-        if (!$stm->execute()) {
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':deletedAt', $deletedAt, \PDO::PARAM_STR);
+        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+
+        try {
+            if (!$stmt->execute()) {
+                return false;
+            }
+
+            $this->productCategoryService->deleteOne($id);
+            $this->productLogService->insertOne($id, $adminUserId, LogActions::Delete);
+            $this->pdo->commit();
+
+            return true;
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            $this->pdo->rollBack();
+
             return false;
         }
-
-        $this->productLogService->insertOne($id, $adminUserId, LogActions::Delete);
     }
 
     public function getPreviousAndUpdatedProductFields(object $previous, object $updated)

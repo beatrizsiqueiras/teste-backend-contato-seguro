@@ -27,74 +27,95 @@ class ProductController
 
     public function getAll(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $adminUserId = $request->getHeader('admin_user_id')[0];
-        $queryParams = $request->getQueryParams();
+        try {
 
-        $stm = $this->service->getAll($adminUserId, $queryParams);
+            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
+            $queryParams = $request->getQueryParams();
 
-        $response->getBody()->write(json_encode($stm->fetchAll()));
-        return $response->withStatus(200);
+            $stmt = $this->service->getAll($adminUserId, $queryParams);
+
+            $response->getBody()->write(json_encode($stmt));
+            return $response->withStatus(200);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        }
     }
 
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $stm = $this->service->getOne($args['id']);
-        $product = Product::hydrateByFetch($stm->fetch());
+        try {
 
-        $adminUserId = $request->getHeader('admin_user_id')[0];
+            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
-        $productCategoriesIds = $this->productCategoryService->getProductCategoriesByProductId(intval($product->id));
-        $productCategoriesTitles = $this->categoryService->getCategoriesTitlesById(intval($adminUserId), $productCategoriesIds);
+            $stmt = $this->service->getOne(intval($args['id']), $adminUserId);
+            $product = Product::hydrateByFetch($stmt->fetch());
 
-        $product->setCategory($productCategoriesTitles);
+            $productCategoriesIds = $this->productCategoryService->getProductCategoriesByProductId(intval($product->id));
+            $productCategoriesTitles = $this->categoryService->getCategoriesTitlesById($adminUserId, $productCategoriesIds);
 
-        $response->getBody()->write(json_encode($product));
-        return $response->withStatus(200);
+            $product->setCategory($productCategoriesTitles);
+
+            $response->getBody()->write(json_encode($product));
+            return $response->withStatus(200);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        }
     }
 
     public function insertOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $body = $request->getParsedBody();
-        $adminUserId = $request->getHeader('admin_user_id')[0];
+        try {
 
-        if ($this->service->insertOne($body, $adminUserId)) {
-            return $response->withStatus(200);
-        } else {
-            return $response->withStatus(404);
+            $body = $request->getParsedBody();
+            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
+
+            $status = $this->service->insertOne($body, $adminUserId) ? 200 : 404;
+            return $response->withStatus($status);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
     }
 
     public function updateOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $body = $request->getParsedBody();
-        $adminUserId = $request->getHeader('admin_user_id')[0];
+        try {
 
-        if ($this->service->updateOne($args['id'], $body, $adminUserId)) {
-            return $response->withStatus(200);
-        } else {
-            return $response->withStatus(404);
+            $body = $request->getParsedBody();
+            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
+
+            $status = $this->service->updateOne(intval($args['id']), $body, $adminUserId) ? 200 : 404;
+            return $response->withStatus($status);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
     }
 
     public function deleteOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $adminUserId = $request->getHeader('admin_user_id')[0];
+        try {
 
-        if ($this->service->deleteOne($args['id'], $adminUserId)) {
-            return $response->withStatus(200);
-        } else {
-            return $response->withStatus(404);
+            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
+
+            $status = $this->service->deleteOne(intval($args['id']), $adminUserId) ? 200 : 404;
+            return $response->withStatus($status);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
     }
 
     public function getProductLogs(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $queryParams = $request->getQueryParams();
-        $productId = $args['id'];
+        try {
 
-        $stm = $this->productLogService->getLogsByProductId($productId, $queryParams);
+            $queryParams = $request->getQueryParams();
+            $productId = $args['id'];
 
-        $response->getBody()->write(json_encode($stm->fetchAll()));
-        return $response->withStatus(200);
+            $stmt = $this->productLogService->getLogsByProductId($productId, $queryParams);
+
+            $response->getBody()->write(json_encode($stmt));
+            return $response->withStatus(200);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        }
     }
 }

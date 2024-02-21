@@ -5,7 +5,7 @@ namespace ContatoSeguro\TesteBackend\Model;
 class Product
 {
 
-    public $category;
+    public array $category;
 
     public function __construct(
         public int $id,
@@ -29,7 +29,7 @@ class Product
         );
     }
 
-    public function setCategory($category)
+    public function setCategory(array $category)
     {
         $this->category = $category;
     }

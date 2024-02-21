@@ -63,7 +63,7 @@ class ProductLogService
 
         $stm->execute();
 
-        return $stm;
+        return $stm->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function insertOne(string $productId, string $adminUserId, LogActions $action, string $before = '', string $after = '')
@@ -90,7 +90,7 @@ class ProductLogService
     public function generateProductLogsString(int $productId): string
     {
         $productLogString = '';
-        $productLogs = $this->getLogsByProductId($productId)->fetchAll();
+        $productLogs = $this->getLogsByProductId($productId);
 
         if (empty($productLogs)) {
             return 'Logs não encontrados';
