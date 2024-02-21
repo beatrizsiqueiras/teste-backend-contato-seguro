@@ -20,19 +20,20 @@ class ProductLogService
         $this->adminUserService = new AdminUserService();
     }
 
-    public function getAll(array $queryParams = [])
+    public function getAll(array $queryParams = []): array
     {
-        $filtersQuery = get_filters_query($queryParams, [
-            'adminUserId' => new AllowedFilter('pl.admin_user_id'),
-            'productId' => new AllowedFilter('pl.product_id'),
-            'action' => new AllowedFilter('pl.action', FilterTypes::String),
-            'updatedField' => new AllowedFilter('pl.after', FilterTypes::CompareString),
-            'createdAt' => new AllowedFilter('pl.created_at', FilterTypes::Date)
-        ]);
+        try {
+            $filtersQuery = get_filters_query($queryParams, [
+                'adminUserId' => new AllowedFilter('pl.admin_user_id'),
+                'productId' => new AllowedFilter('pl.product_id'),
+                'action' => new AllowedFilter('pl.action', FilterTypes::String),
+                'updatedField' => new AllowedFilter('pl.after', FilterTypes::CompareString),
+                'createdAt' => new AllowedFilter('pl.created_at', FilterTypes::Date)
+            ]);
 
-        $query = "
-            SELECT 
-                pl.id as logId,
+            $query = "
+            SELECT
+                pl.id AS logId,
                 pl.admin_user_id AS userId,
                 au.name AS userName,
                 pl.product_id AS productId,
@@ -40,54 +41,83 @@ class ProductLogService
                 pl.action,
                 pl.before,
                 pl.after,
-                pl.created_at as logDate
-            FROM product_log AS pl
-            INNER JOIN admin_user AS au ON au.id = pl.admin_user_id
-            INNER JOIN product as p ON p.id = pl.product_id
-            WHERE pl.deleted_at IS NULL
-            $filtersQuery ;
-        ";
+                pl.created_at AS logDate
+            FROM
+                product_log AS pl
+            INNER JOIN admin_user AS au ON
+                au.id = pl.admin_user_id
+            INNER JOIN product AS p ON
+                p.id = pl.product_id
+            WHERE
+                pl.deleted_at IS NULL
+                $filtersQuery ;
+            ";
 
-        $stm = $this->pdo->prepare($query);
-        $stm->execute();
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
 
-        return $stm->fetchAll(\PDO::FETCH_ASSOC);
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return [];
+        }
     }
 
-    public function getLogsByProductId($productId)
+    public function getLogsByProductId($productId): array
     {
-        $stm = $this->pdo->prepare("
-            SELECT *
-            FROM product_log
-            WHERE product_id = :productId
-        ");
+        try {
+            $query = "
+            SELECT 
+                *
+            FROM 
+                product_log
+            WHERE 
+                product_id = :productId
+            ";
 
-        $stm->bindParam(":productId", $productId, \PDO::PARAM_INT);
-        $stm->execute();
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(":productId", $productId, \PDO::PARAM_INT);
+            $stmt->execute();
 
-        return $stm->fetchAll(\PDO::FETCH_ASSOC);
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return [];
+        }
     }
 
-    public function insertOne(string $productId, string $adminUserId, LogActions $action, string $before = '', string $after = '')
+    public function insertOne(string $productId, string $adminUserId, LogActions $action, string $before = '', string $after = ''): bool
     {
-        $action = $action->value;
-        $query = "INSERT INTO product_log (
-            product_id,
-            admin_user_id,
-            action,
-            before,
-            after
-        ) VALUES (:product_id, :admin_user_id, :action, :before, :after)";
+        try {
+            $action = $action->value;
 
-        $stm = $this->pdo->prepare($query);
+            $query = "
+            INSERT INTO product_log (
+                product_id,
+                admin_user_id,
+                action,
+                before,
+                after
+            )
+            VALUES (
+                :product_id, 
+                :admin_user_id, 
+                :action, :before, 
+                :after
+            )";
 
-        $stm->bindParam(":product_id", $productId, \PDO::PARAM_INT);
-        $stm->bindParam(":admin_user_id", $adminUserId, \PDO::PARAM_INT);
-        $stm->bindParam(":action", $action, \PDO::PARAM_STR);
-        $stm->bindParam(":before", $after, \PDO::PARAM_STR);
-        $stm->bindParam(":after", $before, \PDO::PARAM_STR);
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(":product_id", $productId, \PDO::PARAM_INT);
+            $stmt->bindParam(":admin_user_id", $adminUserId, \PDO::PARAM_INT);
+            $stmt->bindParam(":action", $action, \PDO::PARAM_STR);
+            $stmt->bindParam(":before", $after, \PDO::PARAM_STR);
+            $stmt->bindParam(":after", $before, \PDO::PARAM_STR);
 
-        return $stm->execute();
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            return false;
+        }
     }
 
     public function generateProductLogsString(int $productId): string
@@ -100,8 +130,8 @@ class ProductLogService
 
         $logStrings = [];
         foreach ($productLogs as $log) {
-            $stmt = $this->adminUserService->getOne($log['admin_user_id']);
-            $logUser = AdminUser::hydrateByFetch($stmt->fetch());
+            $stmtt = $this->adminUserService->getOne($log['admin_user_id']);
+            $logUser = AdminUser::hydrateByFetch($stmtt->fetch());
 
             $logUserName = !empty($logUser) ? ucfirst($logUser->name) : "Usuário não encontrado (Id: {$log['admin_user_id']})";
             $logAction = get_translated_log_action($log['action']);
