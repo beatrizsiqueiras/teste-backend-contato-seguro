@@ -10,15 +10,16 @@
 
 ### Se você não possui docker e docker-compose instalados:
 
--   Instale as ferramentas:
-    <a href="https://getcomposer.org/"> Composer </a>,
-    <a href="https://www.php.net/downloads.php"> PHP 8.2 </a> e
-    <a href="https://www.sqlite.org/download.html"> SQLite </a>
+### Requisitos:
+
+-   <a href="https://getcomposer.org/"> Composer </a>
+-   <a href="https://www.php.net/downloads.php"> PHP 8.2</a> (**instale também as extensões: _pdo_, _pdo_sqlite_ e _sqlite3_**)
+-   <a href="https://www.sqlite.org/download.html"> SQLite </a>
 
 -   Navegue até a pasta clonada e execute o seguinte comando no terminal:
--   <pre>composer install </pre>
--   Após isso, navegue até a pasta "public/" e execute o seguinte comando:
--   <pre>php -S localhost:8000 </pre>
+<pre>composer install </pre>
+-   Após isso, navegue até a pasta **"public/"** e execute o seguinte comando:
+<pre>php -S localhost:8000 </pre>
 
 ## O que foi realizado:
 
