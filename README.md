@@ -101,7 +101,7 @@ Boa sorte! :)
 
   <pre>docker-compose up </pre>
 
--   Aguarde os contâiners serem iniciados e acesse http://localhost:8000/ no navegador.
+-   Aguarde os contâiners serem iniciados e utilize http://localhost:8000/ para realizar as requisições.
 
 ### Se você não possui docker e docker-compose instalados:
 
@@ -152,3 +152,9 @@ Boa sorte! :)
 -   Na tabela 'product_category', a coluna 'cat_id' foi modificada para 'category_id', seguindo o padrão de nomenclatura mais consistente e descritivo.
 
 -   Na tabela 'product_log', foram adicionadas as colunas 'before' e 'after', possibilitando o registro das versões anterior e posterior dos dados alterados de um produto, proporcionando um histórico detalhado de alterações.
+
+## Observações
+
+### Arquivos .sqlite
+
+-   Os arquivos .sqlite foram removidos do .gitignore para facilitar a avaliação do projeto. É relevante destacar que reconheço que essa prática não é recomendada em projetos reais. No entanto, por ser um projeto de teste, fiz essa alteração para torná-lo mais acessível e prático de utilizar.
