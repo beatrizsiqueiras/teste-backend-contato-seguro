@@ -1,8 +1,9 @@
 <?php
 
 use ContatoSeguro\TesteBackend\Enum\FilterTypes;
+use ContatoSeguro\TesteBackend\Enum\OrderByDirection;
 
-function get_filters_query(array $queryParams, array $allowedFilters = []): string 
+function get_filters_query(array $queryParams, array $allowedFilters = []): string
 {
     $filters = isset($queryParams['filter']) ? $queryParams['filter'] : [];
     $filtersQuery = '';
@@ -34,22 +35,15 @@ function get_filters_query(array $queryParams, array $allowedFilters = []): stri
     return $filtersQuery;
 }
 
-function get_sorting_query(array $queryParams, array $allowedFilters = []): string
+function get_sorting_query(array $queryParams): string
 {
-    $filters = isset($queryParams['filter']) ? $queryParams['filter'] : [];
     $sortingQuery = '';
+    $orderByColumn = isset($queryParams['orderBy']) ? $queryParams['orderBy'] : null;
+    $orderByDirection = isset($queryParams['orderByDirection']) ? OrderByDirection::from($queryParams['orderByDirection'])->value : OrderByDirection::ASC->value;
 
-    foreach ($filters as $key => $value) {
-        $filter = $allowedFilters[$key];
-
-        // switch ($filter->type) {
-        //     case FilterTypes::OrderBy:
-        //         $sortingQuery .= "ORDER BY $filter->columnName $value ";
-        //         break;
-        //     default:
-        //         $sortingQuery .= "";
-        //         break;
-        // }
+    if ($orderByColumn) {
+        $sortingQuery = " ORDER BY $orderByColumn $orderByDirection";
     }
+
     return $sortingQuery;
 }

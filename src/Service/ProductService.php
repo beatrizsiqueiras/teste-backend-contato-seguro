@@ -34,9 +34,7 @@ class ProductService
                 'active' => new AllowedFilter('p.active'),
             ]);
 
-            // $sortingQuery = get_sorting_query($queryParams, [
-            //     'orderByCreatedAt' => new AllowedFilter('p.created_at', FilterTypes::OrderBy)
-            // ]);
+            $sortingQuery = get_sorting_query($queryParams);
 
             $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 
@@ -54,9 +52,10 @@ class ProductService
                 p.deleted_at IS NULL
                 AND p.company_id = :companyId
                 $filtersQuery
+                $sortingQuery
             ";
-            var_dump($query);
-            exit;
+
+            
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
             $stmt->execute();
