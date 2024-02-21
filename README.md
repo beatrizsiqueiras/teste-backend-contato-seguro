@@ -51,7 +51,7 @@ Para a parte de "Filtros e Ordenação", foi necessário refatorar alguns métod
 
 Para realizar a filtragem/ordenação, será necessário incluir os parâmetros na rota via `GET`.
 
-* Filtros
+### Filtros
 
 É necessário utilizar o formato `filter[nomeDoFiltro]=valor`, para garantir consistência e clareza na passagem dos parâmetros de filtro.
 
@@ -60,7 +60,7 @@ Exemplo:
 
 ##
 
-* Ordenação
+### Ordenação
 
 Para a ordenação é necessário utilizar o formato `sort=[direcao][nomeDaOrdenacao]`, sendo:
 
