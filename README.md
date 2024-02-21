@@ -112,7 +112,7 @@ Boa sorte! :)
 
 -   Navegue até a pasta clonada e execute os seguintes comandos no terminal:
 -   <pre>composer install </pre>
--   <pre>php -S localhost:8080 </pre>
+-   <pre>php -S localhost:8000 </pre>
 
 ## O que foi realizado:
 
