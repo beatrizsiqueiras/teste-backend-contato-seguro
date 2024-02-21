@@ -4,7 +4,6 @@ namespace ContatoSeguro\TesteBackend\Model;
 
 class AdminUser
 {
-
     public function __construct(
         public int $id,
         public int $companyId,

@@ -151,7 +151,7 @@ class AdminUserService
         }
     }
 
-    public function getCompanyIdFromAdminUser(int $adminUserId): ?int
+    public function getCompanyIdFromAdminUser(int $adminUserId): int
     {
         try {
             $query = "
@@ -169,10 +169,10 @@ class AdminUserService
             $stmt->execute();
             $company = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-            return ($company ? intval($company['company_id']) : null);
+            return  intval($company['company_id']);
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
-            return null;
+            return 0;
         }
     }
 }

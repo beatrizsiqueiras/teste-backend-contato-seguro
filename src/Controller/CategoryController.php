@@ -2,6 +2,7 @@
 
 namespace ContatoSeguro\TesteBackend\Controller;
 
+use ContatoSeguro\TesteBackend\Model\Category;
 use ContatoSeguro\TesteBackend\Service\CategoryService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -39,7 +40,8 @@ class CategoryController
         try {
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
-            $category = $this->service->getOne($adminUserId, $args['id']);
+            $stmt = $this->service->getOne($adminUserId, $args['id']);
+            $category = Category::hydrateByFetch($stmt->fetch());
 
             $responseData = [
                 'success' => true,

@@ -2,17 +2,14 @@
 
 namespace ContatoSeguro\TesteBackend\Model;
 
-class Product
+class Category
 {
-    public array $category;
-
     public function __construct(
         public int $id,
-        public int $companyId,
+        public ?int $companyId,
         public string $title,
-        public float $price,
         public bool $active,
-        public string $createdAt,
+        public ?string $createdAt,
         public ?string $updatedAt,
         public ?string $deletedAt
     ) {
@@ -24,16 +21,10 @@ class Product
             $fetch->id,
             $fetch->company_id,
             $fetch->title,
-            $fetch->price,
             $fetch->active,
             $fetch->created_at,
             $fetch->updated_at,
             $fetch->deleted_at
         );
-    }
-
-    public function setCategory(array $category)
-    {
-        $this->category = $category;
     }
 }
