@@ -2,7 +2,7 @@
 
 use ContatoSeguro\TesteBackend\Enum\FilterTypes;
 
-function get_filters_query(array $queryParams, $allowedFilters = [])
+function get_filters_query(array $queryParams, array $allowedFilters = []): string 
 {
     $filters = isset($queryParams['filter']) ? $queryParams['filter'] : [];
     $filtersQuery = '';
@@ -23,11 +23,33 @@ function get_filters_query(array $queryParams, $allowedFilters = [])
             case FilterTypes::String:
                 $filtersQuery .= "AND $filter->columnName = '$value' ";
                 break;
-
-            default:
+            case FilterTypes::Number:
                 $filtersQuery .= "AND $filter->columnName = $value ";
+                break;
+            default:
+                $filtersQuery .= "";
                 break;
         }
     }
     return $filtersQuery;
+}
+
+function get_sorting_query(array $queryParams, array $allowedFilters = []): string
+{
+    $filters = isset($queryParams['filter']) ? $queryParams['filter'] : [];
+    $sortingQuery = '';
+
+    foreach ($filters as $key => $value) {
+        $filter = $allowedFilters[$key];
+
+        // switch ($filter->type) {
+        //     case FilterTypes::OrderBy:
+        //         $sortingQuery .= "ORDER BY $filter->columnName $value ";
+        //         break;
+        //     default:
+        //         $sortingQuery .= "";
+        //         break;
+        // }
+    }
+    return $sortingQuery;
 }

@@ -29,12 +29,14 @@ class ProductService
     public function getAll(int $adminUserId, array $queryParams = []): array
     {
         try {
-
             $filtersQuery = get_filters_query($queryParams, [
-                'createdAt' => new AllowedFilter('p.created_at', FilterTypes::Date),
                 'categoryId' => new AllowedFilter('c.id'),
-                'active' => new AllowedFilter('p.active')
+                'active' => new AllowedFilter('p.active'),
             ]);
+
+            // $sortingQuery = get_sorting_query($queryParams, [
+            //     'orderByCreatedAt' => new AllowedFilter('p.created_at', FilterTypes::OrderBy)
+            // ]);
 
             $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 
@@ -53,6 +55,8 @@ class ProductService
                 AND p.company_id = :companyId
                 $filtersQuery
             ";
+            var_dump($query);
+            exit;
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
             $stmt->execute();

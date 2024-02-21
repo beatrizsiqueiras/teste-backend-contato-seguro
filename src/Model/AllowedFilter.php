@@ -8,7 +8,7 @@ class AllowedFilter
 {
     public function __construct(
         public string $columnName,
-        public FilterTypes $type = FilterTypes::Default,
+        public FilterTypes $type = FilterTypes::Number,
     ) {
     }
 }
