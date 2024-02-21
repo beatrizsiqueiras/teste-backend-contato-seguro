@@ -24,7 +24,7 @@ class ProductService
         $this->productLogService = new ProductLogService();
         $this->productCategoryService = new ProductCategoryService();
         $this->adminUserService = new AdminUserService();
-        $this->now =  date('Y-m-d H:i:s');
+        $this->now =  now();
     }
 
     public function getAll(int $adminUserId, array $queryParams = []): array
@@ -58,7 +58,7 @@ class ProductService
                 $sortingQuery
             ";
 
-            
+
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
             $stmt->execute();
@@ -192,7 +192,7 @@ class ProductService
             return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
-            
+
             return false;
         }
     }
