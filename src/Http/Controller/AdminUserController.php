@@ -1,40 +1,30 @@
 <?php
 
-namespace ContatoSeguro\TesteBackend\Controller;
+namespace ContatoSeguro\TesteBackend\Http\Controller;
 
-use ContatoSeguro\TesteBackend\Model\Product;
-use ContatoSeguro\TesteBackend\Service\CategoryService;
-use ContatoSeguro\TesteBackend\Service\ProductCategoryService;
-use ContatoSeguro\TesteBackend\Service\ProductLogService;
-use ContatoSeguro\TesteBackend\Service\ProductService;
+use ContatoSeguro\TesteBackend\Model\AdminUser;
+use ContatoSeguro\TesteBackend\Service\AdminUserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class ProductController
+class AdminUserController
 {
-    private ProductService $service;
-    private CategoryService $categoryService;
-    private ProductLogService $productLogService;
-    private ProductCategoryService $productCategoryService;
+    private AdminUserService $service;
 
     public function __construct()
     {
-        $this->service = new ProductService();
-        $this->categoryService = new CategoryService();
-        $this->productCategoryService = new ProductCategoryService();
-        $this->productLogService = new ProductLogService();
+        $this->service = new AdminUserService();
     }
 
     public function getAll(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
-            $queryParams = $request->getQueryParams();
-            $products = $this->service->getAll($adminUserId, $queryParams);
+            $companyId = $request->getHeader('company_id')[0];
+            $users = $this->service->getAll(intval($companyId));
 
             $responseData = [
                 'success' => true,
-                'data' => $products
+                'data' => $users
             ];
 
             $response->getBody()->write(json_encode($responseData));
@@ -47,19 +37,12 @@ class ProductController
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
-
-            $stmt = $this->service->getOne(intval($args['id']), $adminUserId);
-            $product = Product::hydrateByFetch($stmt->fetch());
-
-            $productCategoriesIds = $this->productCategoryService->getProductCategoriesByProductId(intval($product->id));
-            $productCategoriesTitles = $this->categoryService->getCategoriesTitlesById($adminUserId, $productCategoriesIds);
-
-            $product->setCategory($productCategoriesTitles);
+            $stmt = $this->service->getOne(intval($args['id']));
+            $adminUser = AdminUser::hydrateByFetch($stmt->fetch());
 
             $responseData = [
                 'success' => true,
-                'data' => $product
+                'data' => $adminUser
             ];
 
             $response->getBody()->write(json_encode($responseData));
@@ -73,14 +56,12 @@ class ProductController
     {
         try {
             $body = $request->getParsedBody();
-            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
-
-            $inserted = $this->service->insertOne($body, $adminUserId);
+            $inserted = $this->service->insertOne($body);
 
             if (!$inserted) {
                 $responseData = [
                     'success' => false,
-                    'message' => 'Falha ao inserir produto.'
+                    'message' => 'Falha ao inserir usuário.'
                 ];
 
                 return $response->withStatus(400)->getBody()->write(json_encode($responseData));
@@ -96,15 +77,12 @@ class ProductController
     {
         try {
             $body = $request->getParsedBody();
-
-            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
-
-            $updated = $this->service->updateOne(intval($args['id']), $body, $adminUserId);
+            $updated = $this->service->updateOne(intval($args['id']), $body);
 
             if (!$updated) {
                 $responseData = [
                     'success' => false,
-                    'message' => 'Falha ao atualizar produto.'
+                    'message' => 'Falha ao atualizar usuário.'
                 ];
 
                 return $response->withStatus(400)->getBody()->write(json_encode($responseData));
@@ -119,39 +97,16 @@ class ProductController
     public function deleteOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
-
-            $deleted = $this->service->deleteOne(intval($args['id']), $adminUserId);
+            $deleted = $this->service->deleteOne(intval($args['id']));
 
             if (!$deleted) {
                 $responseData = [
                     'success' => false,
-                    'message' => 'Falha ao excluir produto.'
+                    'message' => 'Falha ao inserir usuário.'
                 ];
 
                 return $response->withStatus(400)->getBody()->write(json_encode($responseData));
             }
-
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
-        } catch (\Exception $e) {
-            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
-        }
-    }
-
-    public function getProductLogs(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
-    {
-        try {
-            $queryParams = $request->getQueryParams();
-            $productId = $args['id'];
-
-            $productLogs = $this->productLogService->getLogsByProductId($productId, $queryParams);
-
-            $responseData = [
-                'success' => true,
-                'data' => $productLogs
-            ];
-
-            $response->getBody()->write(json_encode($responseData));
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (\Exception $e) {

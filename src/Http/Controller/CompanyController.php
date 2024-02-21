@@ -1,6 +1,6 @@
 <?php
 
-namespace ContatoSeguro\TesteBackend\Controller;
+namespace ContatoSeguro\TesteBackend\Http\Controller;
 
 use ContatoSeguro\TesteBackend\Model\Company;
 use ContatoSeguro\TesteBackend\Service\CompanyService;
