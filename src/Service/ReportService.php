@@ -17,8 +17,8 @@ class ReportService
 
     public function generateReport(int $adminUserId): string
     {
-        $data = [];
-        $data[] = [
+        $reportData = [];
+        $reportData[] = [
             'Id do produto',
             'Nome da Empresa',
             'Nome do Produto',
@@ -30,13 +30,13 @@ class ReportService
 
         $products = $this->productService->getAll(intval($adminUserId));
 
-        foreach ($products as $i => $product) {
+        foreach ($products as $product) {
             $product = (object) $product;
-            
+
             $companyName = $this->companyService->getNameById($product->company_id);
             $productLogs = $this->productLogService->generateProductLogsString($product->id);
 
-            $data[] = [
+            $reportData[] = [
                 $product->id,
                 $companyName,
                 $product->title,
@@ -46,8 +46,7 @@ class ReportService
                 $productLogs,
             ];
         }
-
-        return $this->generateHtmlTable($data);
+        return $this->generateHtmlTable($reportData);
     }
 
     private function generateHtmlTable(array $data): string

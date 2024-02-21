@@ -21,6 +21,7 @@ class ReportController
         $report = $this->reportService->generateReport($adminUserId);
 
         $response->getBody()->write($report);
+
         return $response->withStatus(200)->withHeader('Content-Type', 'text/html');
     }
 }
