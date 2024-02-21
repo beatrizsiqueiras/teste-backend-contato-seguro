@@ -1,6 +1,6 @@
 <?php
 
-namespace ContatoSeguro\TesteBackend\Middleware;
+namespace ContatoSeguro\TesteBackend\Http\Middleware;
 
 use Slim\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface as Request;

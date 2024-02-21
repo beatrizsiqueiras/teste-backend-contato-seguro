@@ -9,6 +9,6 @@ date_default_timezone_set('America/Sao_Paulo');
 $app = AppFactory::create();
 
 require_once dirname(__DIR__, 1) . '/src/Config/middlewares.php';
-require_once dirname(__DIR__, 1) . '/src/Route/routes.php';
+require_once dirname(__DIR__, 1) . '/src/Http/Route/routes.php';
 
 $app->run();

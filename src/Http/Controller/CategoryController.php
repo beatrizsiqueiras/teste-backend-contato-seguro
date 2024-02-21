@@ -1,6 +1,6 @@
 <?php
 
-namespace ContatoSeguro\TesteBackend\Controller;
+namespace ContatoSeguro\TesteBackend\Http\Controller;
 
 use ContatoSeguro\TesteBackend\Model\Category;
 use ContatoSeguro\TesteBackend\Service\CategoryService;

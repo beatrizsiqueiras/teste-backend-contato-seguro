@@ -1,6 +1,6 @@
 <?php
 
-use ContatoSeguro\TesteBackend\Middleware\JsonResponseMiddleware;
+use ContatoSeguro\TesteBackend\Http\Middleware\JsonResponseMiddleware;
 use Slim\App;
 
 /** @var App $app*/
