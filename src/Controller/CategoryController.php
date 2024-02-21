@@ -81,8 +81,8 @@ class CategoryController
     public function updateOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-
             $body = $request->getParsedBody();
+
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
             $updated = $this->service->updateOne(intval($args['id']), $body, $adminUserId);
@@ -105,7 +105,6 @@ class CategoryController
     public function deleteOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-
             $adminUserId = intval(($request->getHeader('admin_user_id')[0]));
 
             $deleted = $this->service->deleteOne(intval($args['id']), $adminUserId);

@@ -69,6 +69,7 @@ class ProductLogService
 
     public function insertOne(string $productId, string $adminUserId, LogActions $action, string $before = '', string $after = '')
     {
+        $action = $action->value;
         $query = "INSERT INTO product_log (
             product_id,
             admin_user_id,
@@ -81,7 +82,7 @@ class ProductLogService
 
         $stm->bindParam(":product_id", $productId, \PDO::PARAM_INT);
         $stm->bindParam(":admin_user_id", $adminUserId, \PDO::PARAM_INT);
-        $stm->bindParam(":action", $action->value, \PDO::PARAM_STR);
+        $stm->bindParam(":action", $action, \PDO::PARAM_STR);
         $stm->bindParam(":before", $after, \PDO::PARAM_STR);
         $stm->bindParam(":after", $before, \PDO::PARAM_STR);
 

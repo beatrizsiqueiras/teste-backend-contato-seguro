@@ -28,7 +28,6 @@ class ProductController
     public function getAll(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
             $queryParams = $request->getQueryParams();
 
@@ -49,7 +48,6 @@ class ProductController
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
             $stmt = $this->service->getOne(intval($args['id']), $adminUserId);
@@ -75,7 +73,6 @@ class ProductController
     public function insertOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-
             $body = $request->getParsedBody();
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
@@ -92,7 +89,6 @@ class ProductController
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (\Exception $e) {
-
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
     }
@@ -100,7 +96,6 @@ class ProductController
     public function updateOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-
             $body = $request->getParsedBody();
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
@@ -124,7 +119,6 @@ class ProductController
     public function deleteOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
             $deleted = $this->service->deleteOne(intval($args['id']), $adminUserId);
@@ -147,7 +141,6 @@ class ProductController
     public function getProductLogs(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-
             $queryParams = $request->getQueryParams();
             $productId = $args['id'];
 

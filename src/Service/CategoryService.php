@@ -106,21 +106,21 @@ class CategoryService
     public function updateOne(int $id, array $body, int $adminUserId)
     {
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+
         $this->pdo->beginTransaction();
 
         $query = "
             UPDATE category
             SET title = :title,
-                active = :active
-                updated_at = :updated_at
+                active = :active,
+                updated_at = :updatedAt
             WHERE id = :id
             AND company_id = :companyId
         ";
-
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
         $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
-        $stmt->bindParam(':updated_at', $this->date, \PDO::PARAM_STR);
+        $stmt->bindParam(':updatedAt', $this->date, \PDO::PARAM_STR);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
 
@@ -134,7 +134,6 @@ class CategoryService
             $this->pdo->rollBack();
 
             return false;
-        } finally {
         }
     }
 
@@ -158,7 +157,7 @@ class CategoryService
         try {
             $this->pdo->commit();
             $stmt->execute();
-            
+
             return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
