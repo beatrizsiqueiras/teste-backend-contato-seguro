@@ -32,6 +32,7 @@ class ProductService
 
             $filtersQuery = get_filters_query($queryParams, [
                 'createdAt' => new AllowedFilter('p.created_at', FilterTypes::Date),
+                'categoryId' => new AllowedFilter('c.id'),
                 'active' => new AllowedFilter('p.active')
             ]);
 
@@ -52,7 +53,6 @@ class ProductService
                 AND p.company_id = :companyId
                 $filtersQuery
             ";
-
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
             $stmt->execute();
