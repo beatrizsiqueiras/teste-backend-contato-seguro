@@ -6,7 +6,8 @@
     },
     "autoload": {
         "files": [
-            "src/Helper/filters.php",
+            "src/Helper/Filter/filters.php",
+            "src/Helper/Sort/sorts.php",
             "src/Helper/logs.php"
         ],
         "psr-4": {

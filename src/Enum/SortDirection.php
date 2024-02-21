@@ -2,7 +2,7 @@
 
 namespace ContatoSeguro\TesteBackend\Enum;
 
-enum OrderByDirection: string
+enum SortDirection: string
 {
     case ASC = 'ASC';
     case asc = 'asc';

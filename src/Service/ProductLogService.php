@@ -6,7 +6,7 @@ use ContatoSeguro\TesteBackend\Config\DB;
 use ContatoSeguro\TesteBackend\Enum\FilterTypes;
 use ContatoSeguro\TesteBackend\Enum\LogActions;
 use ContatoSeguro\TesteBackend\Model\AdminUser;
-use ContatoSeguro\TesteBackend\Model\AllowedFilter;
+use ContatoSeguro\TesteBackend\Helper\Filter\AllowedFilter;
 use DateTime;
 
 class ProductLogService

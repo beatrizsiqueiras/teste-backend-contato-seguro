@@ -5,7 +5,8 @@ namespace ContatoSeguro\TesteBackend\Service;
 use ContatoSeguro\TesteBackend\Config\DB;
 use ContatoSeguro\TesteBackend\Enum\FilterTypes;
 use ContatoSeguro\TesteBackend\Enum\LogActions;
-use ContatoSeguro\TesteBackend\Model\AllowedFilter;
+use ContatoSeguro\TesteBackend\Helper\Filter\AllowedFilter;
+use ContatoSeguro\TesteBackend\Helper\Sort\AllowedSort;
 use PDOStatement;
 use stdClass;
 
@@ -34,7 +35,9 @@ class ProductService
                 'active' => new AllowedFilter('p.active'),
             ]);
 
-            $sortingQuery = get_sorting_query($queryParams);
+            $sortingQuery = get_sorting_query($queryParams, [
+                'createdAt' => new AllowedSort('p.created_at'),
+            ]);
 
             $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 

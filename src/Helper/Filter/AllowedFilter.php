@@ -1,6 +1,6 @@
 <?php
 
-namespace ContatoSeguro\TesteBackend\Model;
+namespace ContatoSeguro\TesteBackend\Helper\Filter;
 
 use ContatoSeguro\TesteBackend\Enum\FilterTypes;
 
