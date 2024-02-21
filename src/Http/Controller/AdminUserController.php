@@ -20,16 +20,16 @@ class AdminUserController
     {
         try {
             $companyId = $request->getHeader('company_id')[0];
-            $users = $this->service->getAll(intval($companyId));
+            $adminUsers = $this->service->getAll(intval($companyId));
 
             $responseData = [
                 'success' => true,
-                'data' => $users
+                'data' => $adminUsers
             ];
 
             $response->getBody()->write(json_encode($responseData));
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return $response->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
@@ -47,7 +47,8 @@ class AdminUserController
             ];
 
             $response->getBody()->write(json_encode($responseData));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
+            return $response->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
@@ -68,7 +69,7 @@ class AdminUserController
                 return $response->withStatus(400)->getBody()->write(json_encode($responseData));
             }
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return $response->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
@@ -89,7 +90,7 @@ class AdminUserController
                 return $response->withStatus(400)->getBody()->write(json_encode($responseData));
             }
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return $response->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
@@ -103,13 +104,13 @@ class AdminUserController
             if (!$deleted) {
                 $responseData = [
                     'success' => false,
-                    'message' => 'Falha ao inserir usuário.'
+                    'message' => 'Falha ao excluir usuário.'
                 ];
 
                 return $response->withStatus(400)->getBody()->write(json_encode($responseData));
             }
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return $response->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }

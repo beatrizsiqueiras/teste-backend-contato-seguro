@@ -16,7 +16,7 @@ class ProductService
     private ProductLogService $productLogService;
     private ProductCategoryService $productCategoryService;
     private AdminUserService $adminUserService;
-    private string $date;
+    private string $now;
 
     public function __construct()
     {
@@ -24,7 +24,7 @@ class ProductService
         $this->productLogService = new ProductLogService();
         $this->productCategoryService = new ProductCategoryService();
         $this->adminUserService = new AdminUserService();
-        $this->date =  date('Y-m-d H:i:s');
+        $this->now =  date('Y-m-d H:i:s');
     }
 
     public function getAll(int $adminUserId, array $queryParams = []): array
@@ -66,6 +66,7 @@ class ProductService
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -94,6 +95,7 @@ class ProductService
             return $stmt;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return null;
         }
     }
@@ -131,6 +133,7 @@ class ProductService
             return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return false;
         }
     }
@@ -160,7 +163,7 @@ class ProductService
             $stmt->bindParam(':title', $data['title'], \PDO::PARAM_STR);
             $stmt->bindParam(':active', $data['active'], \PDO::PARAM_INT);
             $stmt->bindParam(':price', $data['price'], \PDO::PARAM_STR);
-            $stmt->bindParam(':updatedAt', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':updatedAt', $this->now, \PDO::PARAM_STR);
             $stmt->bindParam(':companyId', $data['company_id'], \PDO::PARAM_INT);
             $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
 
@@ -189,6 +192,7 @@ class ProductService
             return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            
             return false;
         }
     }
@@ -209,7 +213,7 @@ class ProductService
             ";
 
             $stmt = $this->pdo->prepare($query);
-            $stmt->bindParam(':deletedAt', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':deletedAt', $this->now, \PDO::PARAM_STR);
             $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
             $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
 

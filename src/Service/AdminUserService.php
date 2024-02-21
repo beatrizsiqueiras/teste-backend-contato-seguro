@@ -10,12 +10,12 @@ use PDOStatement;
 class AdminUserService
 {
     private \PDO $pdo;
-    private string $date;
+    private string $now;
 
     public function __construct()
     {
         $this->pdo = DB::connect();
-        $this->date =  date('Y-m-d H:i:s');
+        $this->now = now();
     }
 
     public function getAll(int $companyId): array
@@ -39,6 +39,7 @@ class AdminUserService
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -62,6 +63,7 @@ class AdminUserService
             return $stmt;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return null;
         }
     }
@@ -69,7 +71,6 @@ class AdminUserService
     public function insertOne(array $body): bool
     {
         try {
-
             $query = "
             INSERT
                 INTO
@@ -86,16 +87,18 @@ class AdminUserService
                 :createdAt
             )
             ";
+
             $stmt = $this->pdo->prepare($query);
 
             $stmt->bindParam(':companyId', $body['company_id'], \PDO::PARAM_INT);
             $stmt->bindParam(':email', $body['email'], \PDO::PARAM_STR);
             $stmt->bindParam(':name', $body['name'], \PDO::PARAM_STR);
-            $stmt->bindParam(':createdAt', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':createdAt', $this->now, \PDO::PARAM_STR);
 
             return $stmt->execute();
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            
             return false;
         }
     }
@@ -107,24 +110,25 @@ class AdminUserService
             UPDATE
                 admin_user
             SET
-                company_id = :company_id,
+                company_id = :companyId,
                 email = :email,
                 name = :name,
-                updated_at = :updated_at
+                updated_at = :updatedAt
             WHERE
                 id = :id
             ";
 
             $stmt = $this->pdo->prepare($query);
-            $stmt->bindParam(':company_id', $body['company_id'], \PDO::PARAM_INT);
+            $stmt->bindParam(':companyId', $body['company_id'], \PDO::PARAM_INT);
             $stmt->bindParam(':email', $body['email'], \PDO::PARAM_STR);
             $stmt->bindParam(':name', $body['name'], \PDO::PARAM_STR);
-            $stmt->bindParam(':updated_at', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':updatedAt', $this->now, \PDO::PARAM_STR);
             $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
 
             return $stmt->execute();
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return false;
         }
     }
@@ -136,17 +140,18 @@ class AdminUserService
             UPDATE
                 admin_user
             SET
-                deleted_at = :deleted_at
+                deleted_at = :deletedAt
             WHERE
                 id = :id
             ";
             $stmt = $this->pdo->prepare($query);
-            $stmt->bindParam(':deleted_at', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':deletedAt', $this->now, \PDO::PARAM_STR);
             $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
 
             return $stmt->execute();
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return false;
         }
     }
@@ -172,6 +177,7 @@ class AdminUserService
             return  intval($company['company_id']);
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return 0;
         }
     }

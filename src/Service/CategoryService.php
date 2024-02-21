@@ -11,13 +11,13 @@ class CategoryService
 {
     private \PDO $pdo;
     private AdminUserService $adminUserService;
-    private string $date;
+    private string $now;
 
     public function __construct()
     {
         $this->pdo = DB::connect();
         $this->adminUserService = new AdminUserService();
-        $this->date =  date('Y-m-d H:i:s');
+        $this->now =  now();
     }
 
     public function getAll(int $adminUserId): array
@@ -40,9 +40,11 @@ class CategoryService
 
         try {
             $stmt->execute();
+
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -72,6 +74,7 @@ class CategoryService
             return $stmt;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return null;
         }
     }
@@ -92,7 +95,7 @@ class CategoryService
                 :companyId,
                 :title,
                 :active,
-                :created_at
+                :createdAt
             )
             ";
 
@@ -100,13 +103,13 @@ class CategoryService
             $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
             $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
             $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
-            $stmt->bindParam(':created_at', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':createdAt', $this->now, \PDO::PARAM_STR);
             $stmt->execute();
 
             return true;
         } catch (\PDOException $e) {
-
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            
             return false;
         }
     }
@@ -131,7 +134,7 @@ class CategoryService
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':title', $data['title'], \PDO::PARAM_STR);
             $stmt->bindParam(':active', $data['active'], \PDO::PARAM_INT);
-            $stmt->bindParam(':updatedAt', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':updatedAt', $this->now, \PDO::PARAM_STR);
             $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
             $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
 
@@ -153,14 +156,14 @@ class CategoryService
             UPDATE
                 category
             SET
-                deleted_at = :deleted_at
+                deleted_at = :deletedAt
             WHERE
                 id = :id
                 AND company_id = :companyId
             ";
 
             $stmt = $this->pdo->prepare($query);
-            $stmt->bindParam(':deleted_at', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':deletedAt', $this->now, \PDO::PARAM_STR);
             $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
             $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
 

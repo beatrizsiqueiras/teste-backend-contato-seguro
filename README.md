@@ -29,8 +29,11 @@ O objetivo deste projeto é demonstrar minhas habilidades em desenvolvimento bac
 ### Iniciando a API:
 
 -   Navegue até a pasta clonada e execute o seguinte comando no terminal:
+
 <pre>composer install </pre>
+
 -   Após isso, navegue até a pasta **"public"** e execute o seguinte comando para iniciar o servidor:
+
 <pre>php -S localhost:8000 </pre>
 
 # O que foi feito?
@@ -42,7 +45,9 @@ Todas as demandas foram concluídas com sucesso, trazendo melhorias significativ
 -   Algumas **variáveis** tiveram seus nomes alterados, resultando em uma revisão da nomenclatura para melhorar a clareza e a consistência do código.
 
 -   Foram criados **novos controllers, services e models** a fim de melhor atender ao **Princípio da Responsabilidade Única (Single Responsibility Principle)**, visando uma arquitetura mais modular e coesa. Além disso foram refatorados os arquivos já existentes.
--   O arquivo de rotas `routes.php` foi movido para uma nova pasta chamada `Route`.
+
+-   O arquivo de rotas `routes.php` foi movido para uma nova pasta chamada `Route`. Além disso, as rotas de alguns recursos foram movidas para novos arquivos. Isto torna mais fácil a localização e manutenção das rotas.
+
 -   Realizei a realocação das pastas `Controller`, `Middleware` e `Route` para uma nova pasta, chamada `Http`. Essa arquitetura de pastas visa agrupar os componentes relacionados à manipulação de requisições HTTP em um único local, melhorando a organização e estrutura do código.
 
 ## Filtros e Ordenação:
@@ -56,6 +61,7 @@ Para realizar a filtragem/ordenação, será necessário incluir os parâmetros 
 É necessário utilizar o formato `filter[nomeDoFiltro]=valor`, para garantir consistência e clareza na passagem dos parâmetros de filtro.
 
 Exemplo:
+
 <pre>/products?filter[categoryId]=4&filter[active]=true</pre>
 
 ##
@@ -70,8 +76,11 @@ Para a ordenação é necessário utilizar o formato `sort=[direcao][nomeDaOrden
 -   [nomeDaOrdenacao]: Informar o nome da ordenação desejada (exemplo: `createdAt` irá referenciar `p.created_at` no `ProductService.php`)
 
 Exemplo de ordenação **decrescente**:
+
 <pre>/products?sort=-createdAt</pre>
+
 Exemplo de ordenação **crescente**:
+
 <pre>/products?sort=createdAt</pre>
 
 Obs.: foi criada apenas a ordenação por data de criação do produto.
@@ -86,11 +95,13 @@ Obs.: foi criada apenas a ordenação por data de criação do produto.
 
 # Observações
 
-### Collections 
+### Collections
+
 -   Os arquivos `insomnia-api.json` e `postman-api.json` foram atualizados contendo novas requisições para atender às demandas.
 
 Exemplo: para a demanda do tópico 'Logs' foi adicionada a seguinte rota:
-        <pre>/productLogs?filter[productId]=4&filter[action]=update</pre>
+
+<pre>/productLogs?filter[productId]=4&filter[action]=update</pre>
 
 ### Arquivos do Banco de Dados
 

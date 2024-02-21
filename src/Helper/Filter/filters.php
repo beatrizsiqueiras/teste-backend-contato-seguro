@@ -11,7 +11,7 @@ function get_filters_query(array $queryParams, array $allowedFilters = []): stri
     if (count($filters)) {
         foreach ($filters as $key => $value) {
             $filter = isset($allowedFilters[$key]) ? $allowedFilters[$key] : false;
-    
+
             if (!$filter) {
                 break;
             }
@@ -21,25 +21,25 @@ function get_filters_query(array $queryParams, array $allowedFilters = []): stri
                     $date = DateTime::createFromFormat('d/m/Y', $value)->format('Y-m-d');
                     $filtersQuery .= "AND STRFTIME('%Y-%m-%d', $filter->columnName) = '$date' ";
                     break;
-    
-                case FilterTypes::CompareString:
+
+                case FilterTypes::PartialString:
                     $filtersQuery .= "AND $filter->columnName LIKE '%$value%' ";
                     break;
-    
+
                 case FilterTypes::String:
                     $filtersQuery .= "AND $filter->columnName = '$value' ";
                     break;
-    
+
                 case FilterTypes::Number:
                     $filtersQuery .= "AND $filter->columnName = $value ";
                     break;
-    
+
                 default:
                     $filtersQuery .= "";
                     break;
             }
         }
     }
-    
+
     return $filtersQuery;
 }

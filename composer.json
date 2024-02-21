@@ -8,7 +8,8 @@
         "files": [
             "src/Helper/Filter/filters.php",
             "src/Helper/Sort/sorts.php",
-            "src/Helper/logs.php"
+            "src/Helper/logs.php",
+            "src/Helper/datetime.php"
         ],
         "psr-4": {
             "ContatoSeguro\\TesteBackend\\": "src/"

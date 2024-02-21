@@ -29,7 +29,8 @@ class CategoryController
             ];
 
             $response->getBody()->write(json_encode($responseData));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
+            return $response->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
@@ -49,7 +50,8 @@ class CategoryController
             ];
 
             $response->getBody()->write(json_encode($responseData));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
+            return $response->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
@@ -72,7 +74,7 @@ class CategoryController
                 return $response->withStatus(400)->getBody()->write(json_encode($responseData));
             }
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return $response->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
@@ -96,7 +98,7 @@ class CategoryController
                 return $response->withStatus(400)->getBody()->write(json_encode($responseData));
             }
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return $response->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
@@ -118,7 +120,7 @@ class CategoryController
                 return $response->withStatus(400)->getBody()->write(json_encode($responseData));
             }
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return $response->withStatus(200);
         } catch (\Exception $e) {
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }

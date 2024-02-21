@@ -5,7 +5,7 @@ namespace ContatoSeguro\TesteBackend\Enum;
 enum FilterTypes: string
 {
     case Date = 'date';
-    case CompareString = 'compareString';
-    case String = 'string';
     case Number = 'number';
+    case String = 'string';
+    case PartialString = 'partialString';
 }

@@ -27,7 +27,7 @@ class ProductLogService
                 'adminUserId' => new AllowedFilter('pl.admin_user_id'),
                 'productId' => new AllowedFilter('pl.product_id'),
                 'action' => new AllowedFilter('pl.action', FilterTypes::String),
-                'updatedField' => new AllowedFilter('pl.after', FilterTypes::CompareString),
+                'updatedField' => new AllowedFilter('pl.after', FilterTypes::PartialString),
                 'createdAt' => new AllowedFilter('pl.created_at', FilterTypes::Date)
             ]);
 
@@ -59,6 +59,7 @@ class ProductLogService
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -82,6 +83,7 @@ class ProductLogService
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -100,15 +102,16 @@ class ProductLogService
                 after
             )
             VALUES (
-                :product_id, 
-                :admin_user_id, 
-                :action, :before, 
+                :productId, 
+                :adminUserId, 
+                :action,
+                :before, 
                 :after
             )";
 
             $stmt = $this->pdo->prepare($query);
-            $stmt->bindParam(":product_id", $productId, \PDO::PARAM_INT);
-            $stmt->bindParam(":admin_user_id", $adminUserId, \PDO::PARAM_INT);
+            $stmt->bindParam(":productId", $productId, \PDO::PARAM_INT);
+            $stmt->bindParam(":adminUserId", $adminUserId, \PDO::PARAM_INT);
             $stmt->bindParam(":action", $action, \PDO::PARAM_STR);
             $stmt->bindParam(":before", $after, \PDO::PARAM_STR);
             $stmt->bindParam(":after", $before, \PDO::PARAM_STR);
@@ -116,6 +119,7 @@ class ProductLogService
             return $stmt->execute();
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return false;
         }
     }

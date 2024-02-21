@@ -33,6 +33,7 @@ class CompanyService
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -56,6 +57,7 @@ class CompanyService
             return $stmt;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+
             return null;
         }
     }
@@ -79,6 +81,7 @@ class CompanyService
             return $result ? $result['name'] : '';
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
+            
             return null;
         }
     }
