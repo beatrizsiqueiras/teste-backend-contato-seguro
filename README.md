@@ -111,7 +111,7 @@ Boa sorte! :)
     <a href="https://www.sqlite.org/download.html"> SQLite </a>
 
 -   Navegue até a pasta clonada e execute os seguintes comandos no terminal:
--   <pre>composer update </pre>
+-   <pre>composer install </pre>
 -   <pre>php -S localhost:8080 </pre>
 
 ## O que foi realizado:
