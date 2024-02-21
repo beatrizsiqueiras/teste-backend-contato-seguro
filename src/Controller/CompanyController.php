@@ -17,18 +17,36 @@ class CompanyController
 
     public function getAll(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $stm = $this->service->getAll();
+        try {
+            $companies = $this->service->getAll();
 
-        $response->getBody()->write(json_encode($stm));
-        return $response->withStatus(200);
+            $responseData = [
+                'success' => true,
+                'data' => $companies
+            ];
+
+            $response->getBody()->write(json_encode($responseData));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        }
     }
 
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
+        try {
 
-        $stm = $this->service->getOne(intval($args['id']));
+            $company = $this->service->getOne(intval($args['id']));
 
-        $response->getBody()->write(json_encode($stm));
-        return $response->withStatus(200);
+            $responseData = [
+                'success' => true,
+                'data' => $company
+            ];
+
+            $response->getBody()->write(json_encode($responseData));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        }
     }
 }

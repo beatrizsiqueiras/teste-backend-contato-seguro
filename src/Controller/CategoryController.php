@@ -17,48 +17,111 @@ class CategoryController
 
     public function getAll(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $adminUserId = intval($request->getHeader('admin_user_id')[0]);
+        try {
+            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
-        $stm = $this->service->getAll($adminUserId);
+            $categories = $this->service->getAll($adminUserId);
 
-        $response->getBody()->write(json_encode($stm));
-        return $response->withStatus(200);
+            $responseData = [
+                'success' => true,
+                'data' => $categories
+            ];
+
+            $response->getBody()->write(json_encode($responseData));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        }
     }
 
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $adminUserId = intval($request->getHeader('admin_user_id')[0]);
+        try {
+            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
-        $stm = $this->service->getOne($adminUserId, $args['id']);
+            $category = $this->service->getOne($adminUserId, $args['id']);
 
-        $response->getBody()->write(json_encode($stm));
-        return $response->withStatus(200);
+            $responseData = [
+                'success' => true,
+                'data' => $category
+            ];
+
+            $response->getBody()->write(json_encode($responseData));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        }
     }
 
     public function insertOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $body = $request->getParsedBody();
-        $adminUserId = intval($request->getHeader('admin_user_id')[0]);
+        try {
 
-        $status = $this->service->insertOne($body, $adminUserId) ? 200 : 404;
+            $body = $request->getParsedBody();
+            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
-        return $response->withStatus($status);
+            $inserted = $this->service->insertOne($body, $adminUserId);
+
+            if (!$inserted) {
+                $responseData = [
+                    'success' => false,
+                    'message' => 'Falha ao inserir categoria.'
+                ];
+
+                return $response->withStatus(400)->getBody()->write(json_encode($responseData));
+            }
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        }
     }
 
     public function updateOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $body = $request->getParsedBody();
-        $adminUserId = intval($request->getHeader('admin_user_id')[0]);
+        try {
 
-        $status = $this->service->updateOne(intval($args['id']), $body, $adminUserId) ? 200 : 404;
-        return $response->withStatus($status);
+            $body = $request->getParsedBody();
+            $adminUserId = intval($request->getHeader('admin_user_id')[0]);
+
+            $updated = $this->service->updateOne(intval($args['id']), $body, $adminUserId);
+
+            if (!$updated) {
+                $responseData = [
+                    'success' => false,
+                    'message' => 'Falha ao atualizar categoria.'
+                ];
+
+                return $response->withStatus(400)->getBody()->write(json_encode($responseData));
+            }
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        }
     }
 
     public function deleteOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $adminUserId = intval(($request->getHeader('admin_user_id')[0]));
+        try {
 
-        $status = $this->service->deleteOne(intval($args['id']), $adminUserId) ? 200 : 404;
-        return $response->withStatus($status);
+            $adminUserId = intval(($request->getHeader('admin_user_id')[0]));
+
+            $deleted = $this->service->deleteOne(intval($args['id']), $adminUserId);
+
+            if (!$deleted) {
+                $responseData = [
+                    'success' => false,
+                    'message' => 'Falha ao excluir categoria.'
+                ];
+
+                return $response->withStatus(400)->getBody()->write(json_encode($responseData));
+            }
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        }
     }
 }
