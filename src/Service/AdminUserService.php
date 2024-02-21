@@ -4,6 +4,8 @@ namespace ContatoSeguro\TesteBackend\Service;
 
 use ContatoSeguro\TesteBackend\Config\DB;
 use Exception;
+use PDO;
+use PDOStatement;
 
 class AdminUserService
 {
@@ -16,23 +18,24 @@ class AdminUserService
         $this->date =  date('Y-m-d H:i:s');
     }
 
-    public function getAll(int $companyId)
+    public function getAll(int $companyId): array
     {
-        $query = "
-        SELECT
-            *
-        FROM
-            admin_user
-        WHERE
-            company_id = :companyId
-            AND deleted_at IS NULL
-        ";
-
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
-
         try {
+
+            $query = "
+            SELECT
+                *
+            FROM
+                admin_user
+            WHERE
+                company_id = :companyId
+                AND deleted_at IS NULL
+            ";
+
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
             $stmt->execute();
+
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
@@ -40,32 +43,30 @@ class AdminUserService
         }
     }
 
-
-    public function getOne(int $id)
+    public function getOne(int $id): PDOStatement
     {
-        $query = "
-        SELECT
-            *
-        FROM
-            admin_user
-        WHERE
-            id = :id
-        ";
-
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-
         try {
+            $query = "
+            SELECT
+                *
+            FROM
+                admin_user
+            WHERE
+                id = :id
+            ";
+
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
             $stmt->execute();
-            return $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            return $stmt;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
             return null;
         }
     }
 
-
-    public function insertOne(array $body)
+    public function insertOne(array $body): bool
     {
         try {
 
@@ -99,7 +100,7 @@ class AdminUserService
         }
     }
 
-    public function updateOne(int $id, array $body)
+    public function updateOne(int $id, array $body): bool
     {
         try {
             $query = "
@@ -128,7 +129,7 @@ class AdminUserService
         }
     }
 
-    public function deleteOne(int $id)
+    public function deleteOne(int $id): bool
     {
         try {
             $query = "
@@ -150,8 +151,7 @@ class AdminUserService
         }
     }
 
-
-    public function getCompanyIdFromAdminUser(int $adminUserId)
+    public function getCompanyIdFromAdminUser(int $adminUserId): ?int
     {
         try {
             $query = "

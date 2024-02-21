@@ -2,6 +2,7 @@
 
 namespace ContatoSeguro\TesteBackend\Controller;
 
+use ContatoSeguro\TesteBackend\Model\AdminUser;
 use ContatoSeguro\TesteBackend\Service\AdminUserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -36,11 +37,12 @@ class AdminUserController
     public function getOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-            $user = $this->service->getOne(intval($args['id']));
+            $stmt = $this->service->getOne(intval($args['id']));
+            $adminUser = AdminUser::hydrateByFetch($stmt->fetch());
 
             $responseData = [
                 'success' => true,
-                'data' => $user
+                'data' => $adminUser
             ];
 
             $response->getBody()->write(json_encode($responseData));
