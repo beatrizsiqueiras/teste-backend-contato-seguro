@@ -153,6 +153,11 @@ Boa sorte! :)
 
 -   Na tabela 'product_log', foram adicionadas as colunas 'before' e 'after', possibilitando o registro das versões anterior e posterior dos dados alterados de um produto, proporcionando um histórico detalhado de alterações.
 
+### Realocação de pastas
+
+-   Realizei a realocação das pastas Controller, Middleware e Route para a pasta Http.
+    A organização dessas pastas na pasta Http segue uma lógica de agrupar todos os componentes relacionados à manipulação de requisições HTTP em um único local. Essa mudança foi feita para melhorar a organização e estrutura do código.
+
 ## Observações
 
 ### Arquivos .sqlite
