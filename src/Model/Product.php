@@ -13,7 +13,9 @@ class Product
         public string $title,
         public float $price,
         public bool $active,
-        public string $createdAt
+        public string $createdAt,
+        public ?string $deletedAt,
+        public ?string $updatedAt
     ) {
     }
 
@@ -25,7 +27,9 @@ class Product
             $fetch->title,
             $fetch->price,
             $fetch->active,
-            $fetch->created_at
+            $fetch->created_at,
+            $fetch->deleted_at,
+            $fetch->updated_at
         );
     }
 

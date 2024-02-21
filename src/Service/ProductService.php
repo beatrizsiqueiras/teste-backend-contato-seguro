@@ -14,6 +14,7 @@ class ProductService
     private ProductLogService $productLogService;
     private ProductCategoryService $productCategoryService;
     private AdminUserService $adminUserService;
+    private string $date;
 
     public function __construct()
     {
@@ -21,6 +22,7 @@ class ProductService
         $this->productLogService = new ProductLogService();
         $this->productCategoryService = new ProductCategoryService();
         $this->adminUserService = new AdminUserService();
+        $this->date =  date('Y-m-d H:i:s');
     }
 
     public function getAll(int $adminUserId, array $queryParams = []): array
@@ -57,6 +59,7 @@ class ProductService
     public function getOne(int $id, int $adminUserId)
     {
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+        $this->pdo->beginTransaction();
 
         $query = "
             SELECT *
@@ -125,30 +128,27 @@ class ProductService
         if (!$previousProduct) {
             return false;
         }
-        $this->pdo->beginTransaction();
-
-        $updatedAt = date('Y-m-d H:i:s');
-
+        // $this->pdo->beginTransaction();
         $query = "
             UPDATE product
             SET company_id = :companyId,
                 title = :title,
-                price = :price,
+                price = $body[price],
                 active = :active,
                 updated_at = :updatedAt
             WHERE id = :id
         ";
-
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':companyId', $body['company_id'], \PDO::PARAM_INT);
         $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
-        $stmt->bindParam(':price', $body['price'], \PDO::PARAM_INT);
         $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
-        $stmt->bindParam(':updatedAt', $updatedAt, \PDO::PARAM_STR);
+        $stmt->bindParam(':updatedAt', $this->date, \PDO::PARAM_STR);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
 
         try {
-            if (!$stmt->execute()) {
+            $updated = $stmt->execute();
+
+            if (!$updated) {
                 return false;
             }
 
@@ -185,8 +185,6 @@ class ProductService
     {
         $this->pdo->beginTransaction();
 
-        $deletedAt = date('Y-m-d H:i:s');
-
         $query = "
             UPDATE product
             SET deleted_at = :deletedAt
@@ -194,7 +192,7 @@ class ProductService
         ";
 
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':deletedAt', $deletedAt, \PDO::PARAM_STR);
+        $stmt->bindParam(':deletedAt', $this->date, \PDO::PARAM_STR);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
 
         try {

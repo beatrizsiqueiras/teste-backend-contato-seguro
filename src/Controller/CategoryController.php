@@ -56,7 +56,6 @@ class CategoryController
     public function insertOne(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
-
             $body = $request->getParsedBody();
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
@@ -73,7 +72,6 @@ class CategoryController
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (\Exception $e) {
-
             return $response->withStatus(500)->getBody()->write(json_encode(['error' => $e->getMessage()]));
         }
     }

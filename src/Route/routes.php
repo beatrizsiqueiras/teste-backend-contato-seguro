@@ -4,7 +4,6 @@ use ContatoSeguro\TesteBackend\Controller\AdminUserController;
 use ContatoSeguro\TesteBackend\Controller\CategoryController;
 use ContatoSeguro\TesteBackend\Controller\CompanyController;
 use ContatoSeguro\TesteBackend\Controller\HomeController;
-use ContatoSeguro\TesteBackend\Controller\ProductCategoryController;
 use ContatoSeguro\TesteBackend\Controller\ProductController;
 use ContatoSeguro\TesteBackend\Controller\ProductLogController;
 use ContatoSeguro\TesteBackend\Controller\ReportController;
@@ -44,7 +43,7 @@ $app->group('/adminUsers', function (RouteCollectorProxy $group) {
     $group->delete('/{id}', [AdminUserController::class, 'deleteOne']);
 });
 
-$app->get('/report', [ReportController::class, 'generate']);
+$app->get('/report', [ReportController::class, 'generateReport']);
 
 $app->group('/productLogs', function (RouteCollectorProxy $group) {
     $group->get('', [ProductLogController::class, 'getAll']);

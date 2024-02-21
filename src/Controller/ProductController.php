@@ -49,10 +49,9 @@ class ProductController
     {
         try {
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
-
             $stmt = $this->service->getOne(intval($args['id']), $adminUserId);
-            $product = Product::hydrateByFetch($stmt->fetch());
 
+            $product = Product::hydrateByFetch($stmt->fetch());
             $productCategoriesIds = $this->productCategoryService->getProductCategoriesByProductId(intval($product->id));
             $productCategoriesTitles = $this->categoryService->getCategoriesTitlesById($adminUserId, $productCategoriesIds);
 

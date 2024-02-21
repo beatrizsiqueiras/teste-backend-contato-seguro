@@ -68,21 +68,22 @@ class AdminUserService
                 name,
                 created_at
             ) VALUES (
-                :company_id,
+                :companyId,
                 :email,
                 :name,
-                :created_at
-            );
+                :createdAt
+            )
         ";
         $stmt = $this->pdo->prepare($query);
 
-        $stmt->bindParam(':company_id', $body['company_id'], \PDO::PARAM_INT);
+        $stmt->bindParam(':companyId', $body['company_id'], \PDO::PARAM_INT);
         $stmt->bindParam(':email', $body['email'], \PDO::PARAM_STR);
         $stmt->bindParam(':name', $body['name'], \PDO::PARAM_STR);
-        $stmt->bindParam(':created_at', $this->date, \PDO::PARAM_STR);
+        $stmt->bindParam(':createdAt', $this->date, \PDO::PARAM_STR);
 
         try {
-            return $stmt->execute();
+            $stmt->execute();
+            return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
             return false;

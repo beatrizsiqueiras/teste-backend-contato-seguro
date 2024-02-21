@@ -2,8 +2,6 @@
 
 namespace ContatoSeguro\TesteBackend\Service;
 
-use ContatoSeguro\TesteBackend\Config\DB;
-
 class ReportService
 {
     private ProductService $productService;
@@ -17,9 +15,8 @@ class ReportService
         $this->companyService = new CompanyService();
     }
 
-    public function generateReport($adminUserId): string
+    public function generateReport(int $adminUserId): string
     {
-
         $data = [];
         $data[] = [
             'Id do produto',
@@ -31,39 +28,42 @@ class ReportService
             'Logs de Alterações'
         ];
 
-        $stm = $this->productService->getAll($adminUserId);
-        $products = $stm;
+        $products = $this->productService->getAll(intval($adminUserId));
 
         foreach ($products as $i => $product) {
             $product = (object) $product;
-
+            
             $companyName = $this->companyService->getNameById($product->company_id);
-
             $productLogs = $this->productLogService->generateProductLogsString($product->id);
 
-            $data[$i + 1][] = $product->id;
-            $data[$i + 1][] = $companyName;
-            $data[$i + 1][] = $product->title;
-            $data[$i + 1][] = $product->price;
-            $data[$i + 1][] = $product->category;
-            $data[$i + 1][] = $product->created_at;
-            $data[$i + 1][] = $productLogs;
+            $data[] = [
+                $product->id,
+                $companyName,
+                $product->title,
+                $product->price,
+                $product->category,
+                $product->created_at,
+                $productLogs,
+            ];
         }
 
-        $report = "<table style='font-size: 10px;'>";
+        return $this->generateHtmlTable($data);
+    }
+
+    private function generateHtmlTable(array $data): string
+    {
+        $table = "<table style='font-size: 10px;'>";
 
         foreach ($data as $row) {
-            $report .= "<tr>";
-
+            $table .= "<tr>";
             foreach ($row as $column) {
-                $report .= "<td>{$column}</td>";
+                $table .= "<td>{$column}</td>";
             }
-
-            $report .= "</tr>";
+            $table .= "</tr>";
         }
 
-        $report .= "</table>";
+        $table .= "</table>";
 
-        return $report;
+        return $table;
     }
 }

@@ -15,7 +15,7 @@ class ReportController
         $this->reportService = new ReportService();
     }
 
-    public function generate(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    public function generateReport(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $adminUserId = $request->getHeader('admin_user_id')[0];
         $report = $this->reportService->generateReport($adminUserId);
