@@ -96,6 +96,7 @@ class ProductController
     {
         try {
             $body = $request->getParsedBody();
+
             $adminUserId = intval($request->getHeader('admin_user_id')[0]);
 
             $updated = $this->service->updateOne(intval($args['id']), $body, $adminUserId);
@@ -105,8 +106,7 @@ class ProductController
                     'success' => false,
                     'message' => 'Falha ao atualizar produto.'
                 ];
-
-                return $response->withStatus(400)->getBody()->write(json_encode($responseData));
+                return $response->withStatus(400);
             }
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);

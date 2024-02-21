@@ -59,7 +59,6 @@ class ProductService
     public function getOne(int $id, int $adminUserId)
     {
         $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
-        $this->pdo->beginTransaction();
 
         $query = "
             SELECT *
@@ -83,8 +82,6 @@ class ProductService
 
     public function insertOne(array $body, string $adminUserId): bool
     {
-        $this->pdo->beginTransaction();
-
         $query = "
             INSERT INTO product (
                 company_id,
@@ -111,48 +108,44 @@ class ProductService
 
             $this->productCategoryService->insertOne($productId, $body['category_id']);
             $this->productLogService->insertOne(intval($productId), intval($adminUserId), LogActions::Create);
-            $this->pdo->commit();
 
             return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
-            $this->pdo->rollBack();
-
             return false;
         }
     }
 
-    public function updateOne(int $id, array $body, string $adminUserId): bool
+    public function updateOne(int $id, array $data, string $adminUserId): bool
     {
-        $previousProduct = $this->getOne($id, $adminUserId)->fetch(\PDO::FETCH_ASSOC);
-        if (!$previousProduct) {
-            return false;
-        }
-        // $this->pdo->beginTransaction();
-        $query = "
-            UPDATE product
-            SET company_id = :companyId,
-                title = :title,
-                price = $body[price],
-                active = :active,
-                updated_at = :updatedAt
-            WHERE id = :id
-        ";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':companyId', $body['company_id'], \PDO::PARAM_INT);
-        $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
-        $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
-        $stmt->bindParam(':updatedAt', $this->date, \PDO::PARAM_STR);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-
         try {
-            $updated = $stmt->execute();
+            $previousProduct = $this->getOne($id, $adminUserId)->fetch(\PDO::FETCH_ASSOC);
 
-            if (!$updated) {
+            if (!$previousProduct) {
                 return false;
             }
 
-            $this->productCategoryService->updateOne($id, $body['category_id']);
+            $query = "UPDATE product
+            SET title = :title,
+                active = :active,
+                updated_at = :updatedAt,
+                price = :price
+            WHERE id = :id
+            AND company_id = :companyId";
+
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':title', $data['title'], \PDO::PARAM_STR);
+            $stmt->bindParam(':active', $data['active'], \PDO::PARAM_INT);
+            $stmt->bindParam(':price', $data['price'], \PDO::PARAM_STR);
+            $stmt->bindParam(':updatedAt', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':companyId', $data['company_id'], \PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+
+            if (!$stmt->execute()) {
+                return false;
+            }
+
+            $this->productCategoryService->updateOne($id, $data['category_id']);
 
             $updatedProduct = $this->getOne($id, $adminUserId)->fetch(\PDO::FETCH_ASSOC);
 
@@ -160,31 +153,25 @@ class ProductService
                 return false;
             }
 
-            [$productBefore, $produtcAfter] = $this->getPreviousAndUpdatedProductFields((object)$previousProduct, (object)$updatedProduct);
+            [$previousFields, $updatedFields] = $this->getPreviousAndUpdatedProductFields((object)$previousProduct, (object)$updatedProduct);
 
             $this->productLogService->insertOne(
                 $id,
                 $adminUserId,
                 LogActions::Update,
-                json_encode($productBefore),
-                json_encode($produtcAfter)
+                json_encode($previousFields),
+                json_encode($updatedFields)
             );
-
-            $this->pdo->commit();
 
             return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
-            $this->pdo->rollBack();
-
             return false;
         }
     }
 
     public function deleteOne(int $id, string $adminUserId): bool
     {
-        $this->pdo->beginTransaction();
-
         $query = "
             UPDATE product
             SET deleted_at = :deletedAt
@@ -202,12 +189,10 @@ class ProductService
 
             $this->productCategoryService->deleteOne($id);
             $this->productLogService->insertOne($id, $adminUserId, LogActions::Delete);
-            $this->pdo->commit();
 
             return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
-            $this->pdo->rollBack();
 
             return false;
         }
@@ -218,10 +203,12 @@ class ProductService
         $previousFields = new stdClass();
         $updatedFields = new stdClass();
 
-        foreach ($updated as $key => $value) {
-            if (property_exists($previous, $key) && $previous->{$key} !== $value) {
-                $updatedFields->{$key} = $value;
-                $previousFields->{$key} = $previous->{$key};
+        foreach ($previous as $key => $value) {
+            if (property_exists($updated, $key)) {
+                if ($updated->{$key} !== $value) {
+                    $updatedFields->{$key} = $value;
+                    $previousFields->{$key} = $updated->{$key};
+                }
             }
         }
 

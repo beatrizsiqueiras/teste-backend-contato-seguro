@@ -43,21 +43,21 @@ class CategoryService
 
     public function getOne(int $adminUserId, int $categoryId)
     {
-        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
-
-        $query = "
-            SELECT *
-            FROM category c
-            WHERE c.active = 1
-            AND (c.company_id = :companyId OR c.company_id IS NULL)
-            AND c.id = :categoryId
-        ";
-
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
-        $stmt->bindParam(':categoryId', $categoryId, \PDO::PARAM_INT);
-
         try {
+            $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+
+            $query = "
+            SELECT *
+                FROM category c
+                WHERE c.active = 1
+                AND (c.company_id = :companyId OR c.company_id IS NULL)
+                AND c.id = :categoryId
+            ";
+
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
+            $stmt->bindParam(':categoryId', $categoryId, \PDO::PARAM_INT);
+
             $stmt->execute();
             return $stmt->fetch(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
@@ -68,10 +68,10 @@ class CategoryService
 
     public function insertOne(array $body, int $adminUserId)
     {
-        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
-        $this->pdo->beginTransaction();
+        try {
+            $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
 
-        $query = "
+            $query = "
             INSERT INTO category (
                 company_id,
                 title,
@@ -83,55 +83,50 @@ class CategoryService
                 :active,
                 :created_at
             )
-        ";
+            ";
 
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
-        $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
-        $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
-        $stmt->bindParam(':created_at', $this->date, \PDO::PARAM_STR);
-
-        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
+            $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
+            $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
+            $stmt->bindParam(':created_at', $this->date, \PDO::PARAM_STR);
             $stmt->execute();
-            $this->pdo->commit();
+
             return true;
         } catch (\PDOException $e) {
-            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
-            $this->pdo->rollBack();
 
+            error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
             return false;
         }
     }
 
-    public function updateOne(int $id, array $body, int $adminUserId)
+    public function updateOne(int $id, array $data, int $adminUserId)
     {
-        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
-
-        $this->pdo->beginTransaction();
-
-        $query = "
-            UPDATE category
-            SET title = :title,
-                active = :active,
-                updated_at = :updatedAt
-            WHERE id = :id
-            AND company_id = :companyId
-        ";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':title', $body['title'], \PDO::PARAM_STR);
-        $stmt->bindParam(':active', $body['active'], \PDO::PARAM_INT);
-        $stmt->bindParam(':updatedAt', $this->date, \PDO::PARAM_STR);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
-
         try {
-            $stmt->execute();
-            $this->pdo->commit();
+            $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+
+            $query = " UPDATE category
+                SET title = :title,
+                    active = :active,
+                    updated_at = :updatedAt
+                WHERE id = :id
+                AND company_id = :companyId
+            ";
+
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':title', $data['title'], \PDO::PARAM_STR);
+            $stmt->bindParam(':active', $data['active'], \PDO::PARAM_INT);
+            $stmt->bindParam(':updatedAt', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+            $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
+
+            if (!$stmt->execute()) {
+                return false;
+            }
 
             return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
-            $this->pdo->rollBack();
 
             return false;
         }
@@ -139,29 +134,27 @@ class CategoryService
 
     public function deleteOne(int $id, int $adminUserId)
     {
-        $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
-        $this->pdo->beginTransaction();
-
-        $query = "
-            UPDATE category
-                SET deleted_at = :deleted_at
-            WHERE id = :id
-            AND company_id = :companyId
-        ";
-
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':deleted_at', $this->date, \PDO::PARAM_STR);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-        $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
-
         try {
-            $this->pdo->commit();
+
+            $companyId = $this->adminUserService->getCompanyIdFromAdminUser($adminUserId);
+
+            $query = "
+                UPDATE category
+                    SET deleted_at = :deleted_at
+                WHERE id = :id
+                AND company_id = :companyId
+            ";
+
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':deleted_at', $this->date, \PDO::PARAM_STR);
+            $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+            $stmt->bindParam(':companyId', $companyId, \PDO::PARAM_INT);
+
             $stmt->execute();
 
             return true;
         } catch (\PDOException $e) {
             error_log('Erro ao executar a consulta SQL: ' . $e->getMessage());
-            $this->pdo->rollBack();
 
             return false;
         }
