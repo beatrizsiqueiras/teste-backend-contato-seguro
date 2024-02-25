@@ -1,6 +1,6 @@
 # Teste Back-end Contato Seguro :
 
-Este é um projeto de API em PHP desenvolvido por Beatriz Siqueira como parte de um teste para a posição de Desenvolvedor(a) Back-end Júnior.
+Este é um projeto de API em PHP desenvolvido por Beatriz Siqueira como parte de um teste para a posição de Desenvolvedora Back-end Júnior.
 
 ### Objetivo
 
