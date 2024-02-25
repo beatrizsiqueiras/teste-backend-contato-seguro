@@ -106,3 +106,6 @@ Exemplo: para a demanda do tópico 'Logs' foi adicionada a seguinte rota:
 ### Arquivos do Banco de Dados
 
 -   Os arquivos `.sqlite` foram removidos do `.gitignore` para facilitar a avaliação do projeto. É relevante destacar que reconheço que essa prática não é recomendada em projetos reais. No entanto, por ser um projeto de teste, fiz essa alteração para torná-lo mais acessível e prático de utilizar.
+
+
+# passei!🥳
